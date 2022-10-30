@@ -1,0 +1,132 @@
+label {
+    display: block;
+    color: white;
+    text-align: left;
+    margin-left: 5%;
+    margin-top: 5px;
+}
+
+input {
+    color: black;
+    width: 90%;
+    border-radius: 10px;
+    border: none;
+    margin-top: 5px;
+    text-align: center;
+}
+
+#labelResetPass {
+    margin-top: -15px;
+}
+
+p {
+    position: relative;
+    z-index: 2;
+    color: white;
+}
+
+button {
+    position: relative;
+    z-index: 2;
+}
+
+form {
+    position: relative;
+    z-index: 2;
+    margin-top: 40px;
+}
+
+.mainContainer {
+    position: absolute;
+    text-align: center;
+    width: 400px;
+    height: 350px;
+    /* border: 5px solid black; */
+    overflow: hidden;
+}
+
+.mainContainerResetPass {
+    position: absolute;
+    text-align: center;
+    width: 350px;
+    height: 200px;
+    overflow: hidden;
+}
+
+.linkStyle {
+    border: none;
+    background-color: transparent;
+    text-decoration: none;
+    color: white;
+}
+
+.linkStyle:hover {
+    color: #97b2b2;
+}
+
+.submitButton {
+    margin-bottom: 10px;
+}
+
+#infoText {
+    margin-bottom: 0px;
+}
+
+#infoAlert {
+    color: #ff4469;
+    margin-top: 10px;
+}
+
+.mainContainer::before {
+    content: "";
+    position: absolute;
+    width: 20%;
+    height: 200%;
+    margin-left: -10%;
+    margin-top: -50%;
+    background: linear-gradient(#ff00d9, #ffff00);
+    animation: rotate 4s linear infinite;
+}
+
+.mainContainerResetPass::before {
+    content: "";
+    position: absolute;
+    width: 20%;
+    height: 200%;
+    margin-left: -10%;
+    margin-top: -30%;
+    background: linear-gradient(#ff00d9, #ffff00);
+    animation: rotate 4s linear infinite;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg)
+    }
+
+    to {
+        transform: rotate(360deg)
+    }
+}
+
+.mainContainer::after {
+    content: "";
+    position: absolute;
+    background: #380c7a;
+    inset: 3px;
+}
+
+.mainContainerResetPass::after {
+    content: "";
+    position: absolute;
+    background: #380c7a;
+    inset: 3px;
+}
+
+#googleImg {
+    margin-top: -10px;
+}
+
+#or {
+    display: inline;
+}
