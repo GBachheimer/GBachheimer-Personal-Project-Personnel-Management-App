@@ -4,6 +4,9 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./signup.css";
+import { set } from "firebase/database";
+import { db } from "../components/firebase";
+import { ref } from "firebase/database";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
@@ -24,9 +27,9 @@ export default function SignUp() {
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredentials) => {
                 const user = userCredentials.user;
-                console.log(user);
                 if (user) {
                     resendVerificationEmail();
+                    saveUserToDb(user);
                 }
             })
             .then(() => {
@@ -51,6 +54,8 @@ export default function SignUp() {
                     setMessage("Please provide a strong password!");
                 } else if (errorCode === "auth/internal-error") {
                     setMessage("Please provide a password!");
+                } else {
+                    setMessage("There was a problem, please try again!");
                 }
             });
     };
@@ -74,13 +79,20 @@ export default function SignUp() {
         signInWithPopup(auth, provider)
             .then((result) => {
                 const user = result.user;
-                console.log(user);
+                saveUserToDb(user);
             })
             .catch((error) => {
                 const errorCode = error.code;
                 console.log(errorCode);
             });
-    }
+    };
+
+    const saveUserToDb = (user) => {
+        const emailForDb = email.replace(".", "@_@");
+        set(ref(db, "users/" + emailForDb), {
+            uid: user.uid
+        });
+    };
 
     return(
         <div className = "position-absolute top-50 start-50 translate-middle mainContainer">
@@ -91,7 +103,7 @@ export default function SignUp() {
                 <input type = "password" id = "password" name = "password" onChange = {handlePassword} required></input>
                 <p id = "infoAlert">{message}</p>
                 <button className = "btn btn-primary submitButton" onClick = {handleSubmit}>Sign up</button>&nbsp;<p id = "or">or</p>&nbsp;
-                <img width = "40" height = "40" src = "https://cdn-icons-png.flaticon.com/512/2991/2991148.png" id = "googleImg"></img>&nbsp;
+                <img alt = "googleIcon" width = "40" height = "40" src = "https://cdn-icons-png.flaticon.com/512/2991/2991148.png" id = "googleImg"></img>&nbsp;
                 <button className = "btn btn-primary submitButton" onClick = {googleSignUp}>Sign up with Google</button>
             </form>
             <p id = "infoText">Already have an account? <Link to = "/login" className = "linkStyle">Login</Link></p>

@@ -1,0 +1,11 @@
+.adminContainer {
+    position: absolute;
+    text-align: center;
+    width: 400px;
+    height: 350px;
+    overflow: hidden;
+}
+
+.adminActions {
+    margin: 5px;
+}

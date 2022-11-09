@@ -27,7 +27,6 @@ export default function Login() {
                     return;
                 }
                 setMessage("You are logged in!");
-                console.log(user);
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -41,6 +40,8 @@ export default function Login() {
                     setMessage("Please provide a valid email or password!");
                 } else if (errorCode === "auth/user-not-found") {
                     setMessage("This account doesn't exists!");
+                } else {
+                    setMessage("There was a problem, please try again!");
                 }
             })
     };
@@ -50,7 +51,6 @@ export default function Login() {
         signInWithPopup(auth, provider)
             .then((result) => {
                 const user = result.user;
-                console.log(user);
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -62,12 +62,12 @@ export default function Login() {
         <div className = "position-absolute top-50 start-50 translate-middle mainContainer">
             <form>
                 <label htmlFor = "email">Email:</label>
-                <input type = "email" onChange = {handleEmail} value = {email} placeHolder = "example@gmail.com" required></input>
+                <input type = "email" onChange = {handleEmail} value = {email} placeholder = "example@gmail.com" required></input>
                 <label htmlFor = "password">Password:</label>
                 <input type = "password" onChange = {handlePassword} value = {password} required></input>
                 <p id = "infoAlert">{message}</p>
                 <button className = "btn btn-primary submitButton" onClick = {handleSubmit}>Login</button>&nbsp;<p id = "or">or</p>&nbsp;
-                <img width = "40" height = "40" src = "https://cdn-icons-png.flaticon.com/512/2991/2991148.png" id = "googleImg"></img>&nbsp;
+                <img alt = "googleIcon" width = "40" height = "40" src = "https://cdn-icons-png.flaticon.com/512/2991/2991148.png" id = "googleImg"></img>&nbsp;
                 <button className = "btn btn-primary submitButton" onClick = {googleSignin}>Login with Google</button>
             </form>
             <p>Don't have an account?  
