@@ -1,0 +1,14 @@
+input {
+    display: block;
+    margin-bottom: 10px;
+    width: 300px;
+}
+
+label {
+    text-align: left;
+    margin-left: 50px;
+}
+
+#addCompanyBtn {
+    margin-left: 30%;
+}

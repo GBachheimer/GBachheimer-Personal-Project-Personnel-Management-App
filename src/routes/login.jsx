@@ -49,9 +49,6 @@ export default function Login() {
     const googleSignin = (event) => {
         event.preventDefault();
         signInWithPopup(auth, provider)
-            .then((result) => {
-                const user = result.user;
-            })
             .catch((error) => {
                 const errorCode = error.code;
                 console.log(errorCode);

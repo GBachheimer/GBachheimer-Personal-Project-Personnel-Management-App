@@ -1,63 +1,97 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import "./admin.css";
 import { AuthContext } from "../components/userContext";
-import { db, dbRef } from "../components/firebase";
-import { get, set, ref, child, remove } from "firebase/database";
+import { getDocs, collection, updateDoc, doc, query, where, getDoc } from "firebase/firestore";
+import { db } from "../components/firebase";
 
 export default function Admin() {
     const [adminEmail, setAdminEmail] = useState("");
     const [message, setMessage] = useState(""); 
+    const [allAdmins, setAllAdmins] = useState([]); 
+
     const {user} = useContext(AuthContext);
-    const uid = user.uid;
 
     const handleAdminEmail = (event) => {
         setAdminEmail(event.target.value);
     };
 
-    const addAdmin = (event) => {
-        const adminEmailForDb = adminEmail.replace(".", "@_@");
-        if (adminEmail === "") {
-            setMessage("Please enter a user email!");
+    const addAdmin = async(event) => {
+        event.preventDefault();
+        const newAdminRef = doc(db, "users", adminEmail);
+        const docSnap = await getDoc(newAdminRef);
+        if (docSnap.exists() && docSnap.data().admin) {
+            setMessage(adminEmail + " is already an admin!");
             return;
         }
-        get(child(dbRef, "users/" + adminEmailForDb)).then(snapshot => {
-            if (snapshot.exists()) {
-                set(ref(db, 'admins/' + adminEmailForDb), {
-                    uid: uid
-                }).then(() => {
-                    setMessage(adminEmail + " successfully granted admin rights!");
-                });
-            } else {
-                setMessage("This email is not valid!");
-            }
-        }).catch((error) => {
-            setMessage(error);
+        if (!docSnap.exists()) {
+            setMessage(adminEmail + " is not a valid user!");
+            return;
+        }
+        await updateDoc(newAdminRef, {
+            admin: true
         });
+        setMessage(adminEmail + " is an admin now!");
+        setAllAdmins([]);
+        getAllAdmins();
     };
 
-    const deleteAdmin = (event) => {
+    const deleteAdmin = async(event) => {
         event.preventDefault();
-        const adminEmailForDb = adminEmail.replace(".", "@_@");
-        get(child(dbRef, "admins/" + adminEmailForDb)).then(snapshot => {
-            if (snapshot.exists()) {
-                remove(ref(db, "admins/" + adminEmailForDb)).then(() => {
-                    setMessage(adminEmail + " admin rights revoked successfully!");
-                });
-            } else {
-                setMessage("This email is not an admin.");
-            }
-        }).catch((error) => {
-            setMessage(error);
+        if (user.email === adminEmail) {
+            setMessage("You cannot revoke your own admin rights!");
+            return;
+        }
+        const newAdminRef = doc(db, "users", adminEmail);
+        const docSnap = await getDoc(newAdminRef);
+        if (docSnap.exists() && !docSnap.data().admin) {
+            setMessage(adminEmail + " is not an admin!");
+            return;
+        }
+        if (!docSnap.exists()) {
+            setMessage(adminEmail + " is not a valid user!");
+            return;
+        }
+        await updateDoc(newAdminRef, {
+            admin: false
         });
+        setMessage(adminEmail + " admin rights revoked successfully!");
+        setAllAdmins([]);
+        getAllAdmins();
     };
+
+    const getAllAdmins = async() => {
+        const allAdminsRef = collection(db, "users");
+        const q = query(allAdminsRef, where("admin", "==", true));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            setAllAdmins(current => [...current, doc.id]);
+        });
+    }
+
+    useEffect(() => {
+        getAllAdmins();
+    }, []);
 
     return (
         <div className = "adminContainer position-absolute start-50 top-50 translate-middle">
-            <label htmlFor = "adminEmail">Email:</label>
-            <input type = "email" placeholder = "example@gmail.com" name = "adminEmail" onChange = {handleAdminEmail} className = "adminEmail" value = {adminEmail} required></input>
-            <p>{message}</p>
-            <button onClick = {addAdmin} className = "btn btn-primary adminActions">Make Admin</button>
-            <button onClick = {deleteAdmin} className = "btn btn-primary adminActions">Revoke Admin Rights</button>
+            <div className = "formStyle2">
+                <label htmlFor = "adminEmail" id = "adminEmailLabel">Email:</label>
+                <input type = "email" placeholder = "example@gmail.com" name = "adminEmail" onChange = {handleAdminEmail} className = "adminEmail" value = {adminEmail} required></input>
+                <p style = {{marginTop: "5px"}}>{message}</p>
+                <button onClick = {addAdmin} className = "btn btn-primary adminActions">Make Admin</button>
+                <button onClick = {deleteAdmin} className = "btn btn-primary adminActions">Revoke Admin Rights</button>
+            </div>
+            <div>
+                {(allAdmins.length === 0) && <p>Loading</p>}
+                {(allAdmins.length > 0) && <table>
+                    <tr>
+                        <th>Admins</th>
+                    </tr>
+                    {allAdmins.map((adminName, id) => {
+                    return <tr key = {id}>{adminName}</tr>
+                    })}
+                </table>}
+            </div>
         </div>
     );
 }

@@ -4,9 +4,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./signup.css";
-import { set } from "firebase/database";
+import { setDoc, doc } from "firebase/firestore";
 import { db } from "../components/firebase";
-import { ref } from "firebase/database";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");
@@ -29,7 +28,7 @@ export default function SignUp() {
                 const user = userCredentials.user;
                 if (user) {
                     resendVerificationEmail();
-                    saveUserToDb(user);
+                    saveUserToFirestore();
                 }
             })
             .then(() => {
@@ -78,8 +77,7 @@ export default function SignUp() {
         event.preventDefault();
         signInWithPopup(auth, provider)
             .then((result) => {
-                const user = result.user;
-                saveUserToDb(user);
+                saveUserToFirestore();
             })
             .catch((error) => {
                 const errorCode = error.code;
@@ -87,16 +85,19 @@ export default function SignUp() {
             });
     };
 
-    const saveUserToDb = (user) => {
-        const emailForDb = email.replace(".", "@_@");
-        set(ref(db, "users/" + emailForDb), {
-            uid: user.uid
-        });
+    const saveUserToFirestore = async() => {
+        try {
+            await setDoc(doc(db, "users", email), {
+                admin: false
+            });
+        } catch (error) {
+            console.loog(error);
+        }
     };
 
     return(
         <div className = "position-absolute top-50 start-50 translate-middle mainContainer">
-            <form>
+            <form className = "formStyle">
                 <label htmlFor = "email">Email:</label>
                 <input type = "email" id = "email" name = "email" placeholder = "example@gmail.com" onChange = {handleEmail} required></input>
                 <label htmlFor = "password">Password:</label>

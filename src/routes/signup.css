@@ -12,6 +12,7 @@ input {
     border-radius: 10px;
     border: none;
     margin-top: 5px;
+    margin-left: 12%;
     text-align: center;
 }
 
@@ -33,7 +34,7 @@ button {
 form {
     position: relative;
     z-index: 2;
-    margin-top: 40px;
+    margin-top: 5px;
 }
 
 .mainContainer {

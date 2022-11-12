@@ -1,28 +1,23 @@
-import { get } from "firebase/database";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { auth, db } from "./firebase";
-import { ref } from "firebase/database";
 import { AuthContext } from "./userContext";
+import { doc, getDoc } from "firebase/firestore";
 
 export const AdminContext = createContext();
 
 export const AdminProvider = ({children}) => {
     const [admin, setAdmin] = useState(null);
-    const {userContext} = useContext(AuthContext);
+    const { userContext } = useContext(AuthContext);
 
-    var userEmail = "";
-    useEffect(() => {
-    auth.onAuthStateChanged((user) => {
-        get(ref(db, "admins/" + user.email.replace(".", "@_@"))).then(snapshot => {
-            if (snapshot.exists()) {
-                setAdmin(true);
-            } else {
-                setAdmin(null);
-            }
-        }).catch((error) => {
-            console.log(error);
-        })
-    })}, []);
+    auth.onAuthStateChanged(async(userContext) => {
+        const docRef = doc(db, "users", userContext.email);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists() && docSnap.data().admin) {
+            setAdmin(true);
+        } else {
+            setAdmin(null);
+        }
+    });
 
     return(
         <AdminContext.Provider value = {{admin}}>
