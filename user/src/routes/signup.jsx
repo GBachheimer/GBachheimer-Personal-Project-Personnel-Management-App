@@ -98,17 +98,18 @@ export default function SignUp() {
     return(
         <div className = "position-absolute top-50 start-50 translate-middle mainContainer">
             <form className = "formStyle">
-                <label htmlFor = "email">Email:</label>
-                <input type = "email" id = "email" name = "email" placeholder = "example@gmail.com" onChange = {handleEmail} required></input>
-                <label htmlFor = "password">Password:</label>
-                <input type = "password" id = "password" name = "password" onChange = {handlePassword} required></input>
-                <p id = "infoAlert">{message}</p>
-                <button className = "btn btn-primary submitButton" onClick = {handleSubmit}>Sign up</button>&nbsp;<p id = "or">or</p>&nbsp;
-                <img alt = "googleIcon" width = "40" height = "40" src = "https://cdn-icons-png.flaticon.com/512/2991/2991148.png" id = "googleImg"></img>&nbsp;
+                <label htmlFor = "email" className = "labelSignUp">Email:</label>
+                <input type = "email" id = "email" name = "email" placeholder = "example@gmail.com" onChange = {handleEmail} required className = "inputSignUp"></input>
+                <label htmlFor = "password" className = "labelSignUp">Password:</label>
+                <input type = "password" id = "password" name = "password" onChange = {handlePassword} required className = "inputSignUp"></input>
+                <p id = "infoAlert" className = "messageSignUp">{message}</p>
+                <button className = "btn btn-primary submitButton" onClick = {handleSubmit}>Sign up</button>&nbsp;
+                <button className = "linkStyle or" disabled> or </button>&nbsp;
+                <img alt = "googleIcon" width = "40" height = "40" src = "https://cdn-icons-png.flaticon.com/512/2991/2991148.png" id = "googleImg" className = "imgStyle"></img>&nbsp;
                 <button className = "btn btn-primary submitButton" onClick = {googleSignUp}>Sign up with Google</button>
             </form>
-            <p id = "infoText">Already have an account? <Link to = "/login" className = "linkStyle">Login</Link></p>
-            <button onClick = {resendVerificationEmail} className = "linkStyle">Resend verification email</button>
+            <p id = "infoText" className = "messageSignUp">Already have an account? <Link to = "/login" className = "linkStyle">Login</Link></p>
+            <button onClick = {resendVerificationEmail} className = "linkStyle messageSignUp">Resend verification email</button>
         </div>
     );
 }

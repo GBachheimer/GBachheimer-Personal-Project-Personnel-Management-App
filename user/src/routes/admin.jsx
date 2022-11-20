@@ -75,9 +75,9 @@ export default function Admin() {
     return (
         <div className = "adminContainer position-absolute start-50 top-50 translate-middle">
             <div className = "formStyle2">
-                <label htmlFor = "adminEmail" id = "adminEmailLabel">Email:</label>
+                <label htmlFor = "adminEmail" className = "adminEmailLabel">Email:</label>
                 <input type = "email" placeholder = "example@gmail.com" name = "adminEmail" onChange = {handleAdminEmail} className = "adminEmail" value = {adminEmail} required></input>
-                <p style = {{marginTop: "5px"}}>{message}</p>
+                <p style = {{marginTop: "10px", color: "white"}}>{message}</p>
                 <button onClick = {addAdmin} className = "btn btn-primary adminActions">Make Admin</button>
                 <button onClick = {deleteAdmin} className = "btn btn-primary adminActions">Revoke Admin Rights</button>
             </div>

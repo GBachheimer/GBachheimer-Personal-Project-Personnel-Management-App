@@ -1,49 +1,46 @@
-label {
+.labelSignUp {
     display: block;
     color: white;
     text-align: left;
-    margin-left: 5%;
     margin-top: 5px;
+    margin-left: 5%;
+    font-size: 0.6rem;
 }
 
-input {
+.inputSignUp {
     color: black;
     width: 90%;
     border-radius: 10px;
     border: none;
+    margin: auto;
     margin-top: 5px;
-    margin-left: 12%;
     text-align: center;
+    padding: 5px;
+    font-size: 0.6rem;
 }
 
-#labelResetPass {
-    margin-top: -15px;
-}
-
-p {
+.messageSignUp {
     position: relative;
     z-index: 2;
     color: white;
+    padding: 5px;
 }
 
-button {
+.formStyle {
     position: relative;
     z-index: 2;
-}
-
-form {
-    position: relative;
-    z-index: 2;
-    margin-top: 5px;
+    margin-top: 5%;
+    text-align: center;
 }
 
 .mainContainer {
     position: absolute;
     text-align: center;
     width: 400px;
-    height: 350px;
+    height: 300px;
     /* border: 5px solid black; */
     overflow: hidden;
+    font-size: 0.6rem;
 }
 
 .mainContainerResetPass {
@@ -52,6 +49,7 @@ form {
     width: 350px;
     height: 200px;
     overflow: hidden;
+    font-size: 0.6rem;
 }
 
 .linkStyle {
@@ -59,6 +57,7 @@ form {
     background-color: transparent;
     text-decoration: none;
     color: white;
+    text-align: center;
 }
 
 .linkStyle:hover {
@@ -67,6 +66,10 @@ form {
 
 .submitButton {
     margin-bottom: 10px;
+    position: relative;
+    z-index: 2;
+    font-size: 0.8rem;
+    margin-top: -10px;
 }
 
 #infoText {
@@ -75,7 +78,7 @@ form {
 
 #infoAlert {
     color: #ff4469;
-    margin-top: 10px;
+    margin-top: 5px;
 }
 
 .mainContainer::before {
@@ -84,7 +87,7 @@ form {
     width: 20%;
     height: 200%;
     margin-left: -10%;
-    margin-top: -50%;
+    margin-top: -150px;
     background: linear-gradient(#ff00d9, #ffff00);
     animation: rotate 4s linear infinite;
 }
@@ -124,10 +127,16 @@ form {
     inset: 3px;
 }
 
-#googleImg {
+.imgStyle {
+    color: white;
     margin-top: -10px;
 }
 
-#or {
-    display: inline;
+.or:hover {
+    color: white;
+}
+
+.resetPassBtn {
+    font-size: 0.8rem;
+    margin-top: -10px;
 }

@@ -1,13 +1,11 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useState } from "react";
 import { auth, db } from "./firebase";
-import { AuthContext } from "./userContext";
 import { doc, getDoc } from "firebase/firestore";
 
 export const AdminContext = createContext();
 
 export const AdminProvider = ({children}) => {
     const [admin, setAdmin] = useState(null);
-    const { userContext } = useContext(AuthContext);
 
     auth.onAuthStateChanged(async(userContext) => {
         const docRef = doc(db, "users", userContext.email);

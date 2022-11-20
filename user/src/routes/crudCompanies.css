@@ -1,0 +1,86 @@
+.hideShowBtn {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 0.6rem;
+}
+
+.addCoInput {
+    display: block;
+    width: 300px;
+    color: black;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 5px;
+    margin: auto;
+    text-align: center;
+    padding: 5px;
+}
+
+.addCoLabel {
+    margin-bottom: 2px;
+}
+
+#addCompanyBtn {
+    font-size: 0.6rem;
+    margin-top: 10px;
+}
+
+#addCompanyContainer {
+    margin-top: 10px;
+    font-size: 0.6rem;
+    width: 99%;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#message {
+    margin-top: 10px;
+    text-align: center;
+    color: white;
+}
+
+#displayAllContainer {
+    width: 80%;
+    max-height: 300px;
+    color: white;
+    text-align: center;
+    margin: auto;
+    overflow: auto;
+    overflow-x: hidden;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    
+}
+
+.btnStyle {
+    border: none;
+    background-color: transparent;
+    text-decoration: none;
+    color: rgb(247, 173, 255);
+    text-align: center;
+}
+
+.deleteBtn:hover {
+    color: red;
+}
+
+.editBtn:hover {
+    color: green;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: white;
+    border-radius: 3px;
+  }
+
+td, th{
+    border: 1px solid white;
+}

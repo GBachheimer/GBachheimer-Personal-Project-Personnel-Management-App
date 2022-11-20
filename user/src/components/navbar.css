@@ -1,0 +1,15 @@
+.dropdown-item{
+    font-size: 0.8rem;
+}
+
+.buttonStyleNavbar {
+    font-size: 0.8rem;
+    border: none;
+    background-color: transparent;
+    text-decoration: none;
+    text-align: center;
+}
+
+.navbar {
+    max-height: 10vh;
+}

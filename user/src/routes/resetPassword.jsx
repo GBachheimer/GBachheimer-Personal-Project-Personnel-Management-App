@@ -29,11 +29,11 @@ export default function ResetPassword() {
 
     return (
         <div className = "position-absolute start-50 top-50 translate-middle mainContainerResetPass">
-            <form>
-                <label htmlFor = "email" id = "labelResetPass">Email:</label>
-                <input type = "email" value = {email} onChange = {handleEmail} placeHolder = "example@gmail.com" required/>
-                <p id = "infoAlert">{message}</p>
-                <button className = "btn btn-primary" onClick = {handleSubmit}>Reset password</button>
+            <form className = "formStyle">
+                <label htmlFor = "email" id = "labelResetPass" className = "labelSignUp">Email:</label>
+                <input type = "email" value = {email} onChange = {handleEmail} placeHolder = "example@gmail.com" required className = "inputSignUp"/>
+                <p id = "infoAlert" className = "messageSignUp">{message}</p>
+                <button className = "btn btn-primary resetPassBtn" onClick = {handleSubmit}>Reset password</button>
             </form>
         </div>
     );
