@@ -73,7 +73,7 @@ export default function CrudCompanies() {
             return;
         }
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyBcyvzEq-kiLe_7471Yb6jhE32s_4-XJu0")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=API_key")
         .then((response) => {
             Axios.post("http://localhost:5000/addCompany", { 
                 companyName: companyName,
