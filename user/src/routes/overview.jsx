@@ -16,7 +16,7 @@ export default function Overview() {
 
     return (
         <div style = {{ display: "flex", height: "90vh", width: "100%" }}>
-            {allCoData && <Wrapper apiKey = "API_key" >
+            {allCoData && <Wrapper apiKey = "MY_KEY" >
                 <GoogleMapsInfo center = {centerEurope} zoom = {zoomEurope} data = {allCoData} />
             </Wrapper>}
             {!allCoData && <h1 style = {{color: "black"}} className = "position-absolute start-50 top-50 translate-middle">Loading...</h1>}

@@ -48,7 +48,5 @@ export default function GoogleMapsInfo(props) {
       }
     }, [data]);
 
-    return (
-      <div ref = {ref} id = "map" style = {{ flexGrow: "1", height: "100%" }}></div>
-      );
+    return <div ref = {ref} id = "map" style = {{ flexGrow: "1", height: "100%" }}></div>
 }

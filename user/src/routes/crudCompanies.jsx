@@ -12,6 +12,9 @@ export default function CrudCompanies() {
     const [postalCode, setPostalCode] = useState("");
     const [totalPositions, setTotalPositions] = useState("");
     const [openPositions, setOpenPositions] = useState("");
+    const [edit, setEdit] = useState(false);
+    const [id, setId] = useState();
+    const [state, setState] = useState("");
 
     useEffect(() => {
         getAllCo();
@@ -20,23 +23,30 @@ export default function CrudCompanies() {
         autocomplete.addListener("place_changed", () => {
             const place = autocomplete.getPlace();
             console.log(place.address_components);
-            setAddress(place.address_components[1].long_name + " " + place.address_components[0].long_name);
-            if(place.address_components[2]) {
-                setCity(place.address_components[2].long_name);
-            } else {
-                setCity("");
+            let streetNr = "";
+            for (let i = 0; i < place.address_components.length; ++i) {
+                if(place.address_components[i].types[0] === "street_number") {
+                    streetNr += place.address_components[i].long_name;
+                }
+                if(place.address_components[i].types[0] === "route") {
+                    streetNr += " " + place.address_components[i].long_name;
+                }
+                if(place.address_components[i].types[0] === "locality" || place.address_components[i].types[0] === "postal_town") {
+                    setCity(place.address_components[i].long_name);
+                }
+                if(place.address_components[i].types[0] === "administrative_area_level_1" || place.address_components[i].types[0] === "administrative_area_level_2" || place.address_components[i].types[0] === "administrative_area_level_3") {
+                    setState(place.address_components[i].long_name);
+                }
+                if(place.address_components[i].types[0] === "country") {
+                    setCountry(place.address_components[i].long_name);   
+                }
+                if(place.address_components[i].types[0] === "postal_code") {
+                    setPostalCode(place.address_components[i].long_name);
+                }
             }
-            if(place.address_components[5]) {
-                setCountry(place.address_components[5].long_name);
-            } else {
-                setCountry("");
-            }
-            if(place.address_components[6]) {
-                setPostalCode(place.address_components[6].long_name);
-            } else {
-                setPostalCode("");
-            }
+            setAddress(streetNr);
         });
+        console.log(data);
     }, []);
 
     const getAllCo = () => {
@@ -46,34 +56,86 @@ export default function CrudCompanies() {
     };
 
     const handleDelete = (event) => {
-        Axios.delete(`http://localhost:5000/delete/${event.target.id}`).then(() => {
-        console.log("test");    
-        getAllCo();
-
+        Axios.delete(`http://localhost:5000/delete/${event.target.id}`).then((res) => { 
+            setMessage(res.data);
+            document.getElementById("message").style.color = "#5dff6a";
+            getAllCo();
         }).catch((error) => {
             console.log(error);
         });
     };
 
     const handleEdit = (event) => {
-        console.log("edit");
-        // Axios.put(`http://localhost:5000/edit/${event.target.id}`, {
+        setEdit(true);
+        setId(event.target.id);
+        setMessage("");
+        for(let i = 0; i < data.length; ++i) {
+            if (data[i].co_id === parseInt(event.target.id)) {
+                setAddress(data[i].co_address);
+                setCity(data[i].co_city);
+                setCompanyName(data[i].co_name);
+                setCountry(data[i].co_country);
+                setPostalCode(data[i].co_postal_code);
+                setTotalPositions(data[i].co_initial_total_positions);
+                setOpenPositions(data[i].co_initial_free_positions);
+                setState(data[i].co_state);
+            }
+        }
+    };
 
-        // }).then((res) => {
-        //     setMessage(res.data);
-        // }).catch((error) => {
-        //     setMessage(error);
-        // });
+    const editCompany = (event) => {
+        event.preventDefault();
+        if (!companyName || !country || !city || !address || !totalPositions || !openPositions || !postalCode || !state) {
+            setMessage("Please fill all the required fields!");
+            document.getElementById("message").style.color = "red";
+            return;
+        }
+        const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
+        .then((response) => {
+            Axios.put("http://localhost:5000/editCompany/" + id, { 
+                companyName: companyName,
+                country: country,
+                city: city,
+                address: address,
+                postalCode: postalCode,
+                lat: response.data.results[0].geometry.location.lat,
+                lng: response.data.results[0].geometry.location.lng,
+                totalPositions: totalPositions,
+                openPositions: openPositions,
+                state: state
+            }).then((res) => {
+                setMessage(res.data);
+                document.getElementById("message").style.color = "#5dff6a";
+                setEdit(false);
+                setAddress("");
+                setCity("");
+                setCompanyName("");
+                setCountry("");
+                setPostalCode("");
+                setTotalPositions("");
+                setOpenPositions("");
+                setState("");
+                getAllCo();
+            }).catch((error) => {
+                console.log(error);
+            })})
+        .catch((error) => {
+            setMessage("Coudn't take coords!");
+            document.getElementById("message").style.color = "red";
+            console.log(error);
+        });
     };
 
     const addCompany = (event) => {
         event.preventDefault();
-        if (!companyName || !country || !city || !address || !totalPositions || !openPositions || !postalCode) {
-            setMessage("Please fill all the fields!");
+        if (!companyName || !country || !city || !address || !totalPositions || !openPositions || !postalCode || !state) {
+            setMessage("Please fill all the required fields!");
+            document.getElementById("message").style.color = "red";
             return;
         }
-        const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=API_key")
+        const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
         .then((response) => {
             Axios.post("http://localhost:5000/addCompany", { 
                 companyName: companyName,
@@ -84,15 +146,18 @@ export default function CrudCompanies() {
                 lat: response.data.results[0].geometry.location.lat,
                 lng: response.data.results[0].geometry.location.lng,
                 totalPositions: totalPositions,
-                openPositions: openPositions})
-            .then((res) => {
+                openPositions: openPositions,
+                state: state
+            }).then((res) => {
                 setMessage(res.data);
+                document.getElementById("message").style.color = "#5dff6a";
                 getAllCo();
             }).catch((error) => {
                 console.log(error);
             })})
         .catch((error) => {
             setMessage("Coudn't take coords!");
+            document.getElementById("message").style.color = "red";
             console.log(error);
         });
     };
@@ -101,16 +166,17 @@ export default function CrudCompanies() {
 
     return (
         <div style = {{width: "100%", textAlign: "center"}}>
-            <p id = "message">{message}</p>
             <div id = "addCompanyContainer" style = {{color: "white"}}>
                 <label htmlFor = "companyName" className = "addCoLabel">Company Name*</label>
-                <input className = "addCoInput" name = "companyName" type = "text" placeholder = "Example LLC" value = {companyName} onChange = {(event) => {setCompanyName(event.target.value)}} required></input>
+                <input id = "co_name" className = "addCoInput" name = "companyName" type = "text" placeholder = "Example LLC" value = {companyName} onChange = {(event) => {setCompanyName(event.target.value)}} required></input>
                 <label htmlFor = "address" className = "addCoLabel">Address*</label>
                 <input className = "addCoInput" name = "address" type = "text" placeholder = "St. Peter 10" value = {address} onChange = {(event) => {setAddress(event.target.value)}} id = "address" required></input>
                 <label htmlFor = "city" className = "addCoLabel">City*</label>
-                <input className = "addCoInput" name = "city" type = "text" placeholder = "London" value = {city} onChange = {(event) => {setCity(event.target.value)}} required></input>
+                <input id = "co_city" className = "addCoInput" name = "city" type = "text" placeholder = "London" value = {city} onChange = {(event) => {setCity(event.target.value)}} required></input>
+                <label htmlFor = "state">State / Province*</label>
+                <input id = "co_state" className = "addCoInput" name = "state" type = "text" placeholder = "Ilfov" value = {state} onChange = {(event) => {setState(event.target.value)}} required></input>
                 <label htmlFor = "country" className = "addCoLabel">Country*</label>
-                <select className = "addCoInput" name = "country" onChange = {(event) => {setCountry(event.target.value)}} value = {country} required>
+                <select id = "co_country" className = "addCoInput" name = "country" onChange = {(event) => {setCountry(event.target.value)}} value = {country} required>
                     <option value = ""></option>
                     <option value = "United Kingdom">United Kingdom</option>
                     <option value = "Albania">Albania</option>
@@ -163,13 +229,15 @@ export default function CrudCompanies() {
                     <option value = "Turkey">Turkey</option>
                 </select>
                 <label htmlFor = "postalCode" className = "addCoLabel">Postal Code*</label>
-                <input className = "addCoInput" name = "postalCode" type = "text" placeholder = "10" value = {postalCode} onChange = {(event) => {setPostalCode(event.target.value)}} required></input>
+                <input id = "co_postal_code" className = "addCoInput" name = "postalCode" type = "text" placeholder = "10" value = {postalCode} onChange = {(event) => {setPostalCode(event.target.value)}} required></input>
                 <label htmlFor = "totalPositions" className = "addCoLabel">Total Positions*</label>
-                <input className = "addCoInput" name = "totalPositions" type = "text" placeholder = "329" value = {totalPositions} onChange = {(event) => {setTotalPositions(event.target.value)}} required></input>
+                <input id = "co_total_positions" className = "addCoInput" name = "totalPositions" type = "text" placeholder = "329" value = {totalPositions} onChange = {(event) => {setTotalPositions(event.target.value)}} required></input>
                 <label htmlFor = "openPositions" className = "addCoLabel">Open Positions*</label>
-                <input className = "addCoInput" name = "openPositions" type = "text" placeholder = "23" value = {openPositions} onChange = {(event) => {setOpenPositions(event.target.value)}} required></input>
-                <button id = "addCompanyBtn" className = "btn btn-primary" onClick = {addCompany}>Add Company</button>
+                <input id = "co_open_positions" className = "addCoInput" name = "openPositions" type = "text" placeholder = "23" value = {openPositions} onChange = {(event) => {setOpenPositions(event.target.value)}} required></input>
+                {!edit && <button id = "addCompanyBtn" className = "btn btn-primary" onClick = {addCompany}>Add Company</button>}
+                {edit && <button id = "editCompanyBtn" className = "btn btn-primary" onClick = {editCompany}>Save Comapny Info</button>}
             </div>
+            <p id = "message">{message}</p>
             <div id = "displayAllContainer">
                 {data && <table>
                     <thead>

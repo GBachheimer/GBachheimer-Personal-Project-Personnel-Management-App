@@ -20,7 +20,7 @@
     margin-bottom: 2px;
 }
 
-#addCompanyBtn {
+#addCompanyBtn, #editCompanyBtn {
     font-size: 0.6rem;
     margin-top: 10px;
 }
@@ -65,7 +65,7 @@
 }
 
 .editBtn:hover {
-    color: green;
+    color: #5dff6a;
 }
 
 ::-webkit-scrollbar {
@@ -77,10 +77,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: white;
+    background: #ffffff;
     border-radius: 3px;
   }
 
-td, th{
+/* td, th{
     border: 1px solid white;
-}
+} */
