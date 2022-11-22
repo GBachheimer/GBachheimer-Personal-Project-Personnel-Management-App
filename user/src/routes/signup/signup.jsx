@@ -1,11 +1,11 @@
-import { auth, provider } from "../components/firebase";
+import { auth, provider } from "../../components/firebase";
 import { createUserWithEmailAndPassword, sendEmailVerification, signInWithPopup } from "firebase/auth";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import "./signup.css";
 import { setDoc, doc } from "firebase/firestore";
-import { db } from "../components/firebase";
+import { db } from "../../components/firebase";
 
 export default function SignUp() {
     const [email, setEmail] = useState("");

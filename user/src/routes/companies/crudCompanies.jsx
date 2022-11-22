@@ -12,9 +12,11 @@ export default function CrudCompanies() {
     const [postalCode, setPostalCode] = useState("");
     const [totalPositions, setTotalPositions] = useState("");
     const [openPositions, setOpenPositions] = useState("");
+    const [previousCoName, setPreviousCoName] = useState("");
     const [edit, setEdit] = useState(false);
     const [id, setId] = useState();
     const [state, setState] = useState("");
+    const [show, setShow] = useState(false);
 
     useEffect(() => {
         getAllCo();
@@ -46,17 +48,16 @@ export default function CrudCompanies() {
             }
             setAddress(streetNr);
         });
-        console.log(data);
-    }, []);
+    }, [show]);
 
     const getAllCo = () => {
-        Axios.get("http://localhost:5000/takeCo").then((res) => {
+        Axios.get("http://localhost:5000/company/list").then((res) => {
             setData(res.data.rows);
         });
     };
 
     const handleDelete = (event) => {
-        Axios.delete(`http://localhost:5000/delete/${event.target.id}`).then((res) => { 
+        Axios.delete(`http://localhost:5000/company/delete/${event.target.id}`).then((res) => { 
             setMessage(res.data);
             document.getElementById("message").style.color = "#5dff6a";
             getAllCo();
@@ -69,8 +70,10 @@ export default function CrudCompanies() {
         setEdit(true);
         setId(event.target.id);
         setMessage("");
+        setShow(true);
         for(let i = 0; i < data.length; ++i) {
             if (data[i].co_id === parseInt(event.target.id)) {
+                setPreviousCoName(data[i].co_name);
                 setAddress(data[i].co_address);
                 setCity(data[i].co_city);
                 setCompanyName(data[i].co_name);
@@ -91,10 +94,10 @@ export default function CrudCompanies() {
             return;
         }
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyDzyEPQ-8ZKu6DMZQ3lyu9T9SL4qqh5c1M")
         .then((response) => {
-            Axios.put("http://localhost:5000/editCompany/" + id, { 
-                companyName: companyName,
+            Axios.put("http://localhost:5000/company/edit/" + id, { 
+                companyName: companyName.replace(/\s/g, "_"),
                 country: country,
                 city: city,
                 address: address,
@@ -103,7 +106,8 @@ export default function CrudCompanies() {
                 lng: response.data.results[0].geometry.location.lng,
                 totalPositions: totalPositions,
                 openPositions: openPositions,
-                state: state
+                state: state,
+                previousCoName: previousCoName
             }).then((res) => {
                 setMessage(res.data);
                 document.getElementById("message").style.color = "#5dff6a";
@@ -116,6 +120,7 @@ export default function CrudCompanies() {
                 setTotalPositions("");
                 setOpenPositions("");
                 setState("");
+                setPreviousCoName("");
                 getAllCo();
             }).catch((error) => {
                 console.log(error);
@@ -135,10 +140,10 @@ export default function CrudCompanies() {
             return;
         }
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyDzyEPQ-8ZKu6DMZQ3lyu9T9SL4qqh5c1M")
         .then((response) => {
-            Axios.post("http://localhost:5000/addCompany", { 
-                companyName: companyName,
+            Axios.post("http://localhost:5000/company/add", { 
+                companyName: companyName.replace(/\s/g, "_"),
                 country: country,
                 city: city,
                 address: address,
@@ -162,11 +167,25 @@ export default function CrudCompanies() {
         });
     };
 
-    //trebuie verificat fiecare camp din adresa daca corespunde categoriei care urmeaza sa fie completata
+    const handleShowHide = () => {
+        setShow(!show);
+        setEdit(false);
+        setAddress("");
+        setCity("");
+        setCompanyName("");
+        setCountry("");
+        setPostalCode("");
+        setTotalPositions("");
+        setOpenPositions("");
+        setState("");
+        setPreviousCoName("");
+    };
 
     return (
         <div style = {{width: "100%", textAlign: "center"}}>
-            <div id = "addCompanyContainer" style = {{color: "white"}}>
+            {!show && <button className = "btn btn-primary hideShowBtn" onClick = {handleShowHide}>Add a new company</button>}
+            {show && <button className = "btn btn-primary hideShowBtn" onClick = {handleShowHide}>Hide form</button>}
+            {show && <div id = "addCompanyContainer" style = {{color: "white"}}>
                 <label htmlFor = "companyName" className = "addCoLabel">Company Name*</label>
                 <input id = "co_name" className = "addCoInput" name = "companyName" type = "text" placeholder = "Example LLC" value = {companyName} onChange = {(event) => {setCompanyName(event.target.value)}} required></input>
                 <label htmlFor = "address" className = "addCoLabel">Address*</label>
@@ -235,10 +254,10 @@ export default function CrudCompanies() {
                 <label htmlFor = "openPositions" className = "addCoLabel">Open Positions*</label>
                 <input id = "co_open_positions" className = "addCoInput" name = "openPositions" type = "text" placeholder = "23" value = {openPositions} onChange = {(event) => {setOpenPositions(event.target.value)}} required></input>
                 {!edit && <button id = "addCompanyBtn" className = "btn btn-primary" onClick = {addCompany}>Add Company</button>}
-                {edit && <button id = "editCompanyBtn" className = "btn btn-primary" onClick = {editCompany}>Save Comapny Info</button>}
-            </div>
+                {edit && <button id = "editCompanyBtn" className = "btn btn-primary" onClick = {editCompany}>Save Company Info</button>}
+            </div>}
             <p id = "message">{message}</p>
-            <div id = "displayAllContainer">
+            {!show && <div id = "displayAllContainer">
                 {data && <table>
                     <thead>
                         <tr>
@@ -247,11 +266,11 @@ export default function CrudCompanies() {
                             <th>Open positions</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id = "coTableBody">
                     {data.map((item, key) => {
                         return(
                             <tr key = {item.co_id}>
-                                <td>{item.co_name}</td>
+                                <td>{item.co_name.replace(/_/g, " ")}</td>
                                 <td>{item.co_initial_total_positions}</td>
                                 <td>{item.co_initial_free_positions}</td>
                                 <td><button id = {item.co_id} onClick = {handleEdit} className = "editBtn btnStyle">Edit</button></td>
@@ -262,7 +281,7 @@ export default function CrudCompanies() {
                     </tbody>
                 </table>}
                 {!data && <p style = {{color: "white"}}>Loading...</p>}
-            </div>
+            </div>}
         </div>
     );
 }

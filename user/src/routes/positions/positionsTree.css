@@ -1,0 +1,95 @@
+.treeContainer {
+    text-align: center;
+    overflow: hidden;
+    width: 100%;
+    height: 90%;
+}
+
+.addDeadlineLabel {
+    margin-top: 5px;
+    margin-bottom: 2px;
+    font-size: 0.6rem;
+}
+
+#tableBody {
+    font-size: 0.6rem;
+}
+
+.addDeadlineInput {
+    font-size: 0.6rem;
+    display: block;
+    width: 300px;
+    color: black;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 5px;
+    margin: auto;
+    text-align: center;
+    padding: 5px;
+}
+
+textarea {
+    min-height: 100px;
+}
+
+#addPosContainer {
+    width: 100%;
+    font-size: 0.6rem;
+    text-align: center;
+    color: white;
+}
+
+#selectCoInput {
+    margin-bottom: 10px;
+}
+
+.addPositionInput {
+    font-size: 0.6rem;
+    display: block;
+    width: 300px;
+    color: black;
+    border-radius: 10px;
+    border: none;
+    margin-bottom: 5px;
+    margin-top: 5px;
+    margin: auto;
+    text-align: center;
+    padding: 5px;
+}
+
+.addPositionLabel {
+    margin-top: 5px;
+    margin-bottom: 2px;
+    font-size: 0.6rem;
+}
+
+.addPosBtn {
+    font-size: 0.6rem;
+    margin-top: 10px;
+}
+
+.actionBtn {
+    border: none;
+    background-color: transparent;
+    text-decoration: none;
+    color: rgb(247, 173, 255);
+    text-align: center;
+    font-size: 0.6rem;
+}
+
+.occupiedBtn:hover {
+    color:white;
+}
+
+.deleteBtn:hover {
+    color: red;
+}
+
+.editBtn:hover {
+    color: #5dff6a;
+}
+
+.showFormBtn {
+    font-size: 0.6rem;
+    margin-top: 10px;
+}

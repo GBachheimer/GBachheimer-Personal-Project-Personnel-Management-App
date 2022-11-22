@@ -1,17 +1,16 @@
 
 import './App.css';
-import Navbar from './components/navbar';
+import Navbar from './components/navbar/navbar';
 import GeneralPrezentation from './routes/generalPrezentation';
 import { Route, Routes } from 'react-router-dom';
 import Overview from './routes/overview';
-import SignUp from './routes/signup';
-import Login from './routes/login';
-import PositionsTree from './routes/positionsTree';
+import SignUp from './routes/signup/signup';
+import Login from './routes/login/login';
+import PositionsTree from './routes/positions/positionsTree';
 import Statistics from './routes/statistics';
-import Deadlines from './routes/deadlines';
-import CrudCompanies from './routes/crudCompanies';
-import ResetPassword from './routes/resetPassword';
-import Admin from './routes/admin';
+import CrudCompanies from './routes/companies/crudCompanies';
+import ResetPassword from './routes/login/resetPassword';
+import Admin from './routes/admins/admin';
 import { AuthContext } from './components/userContext';
 import { useContext } from 'react';
 import { AdminContext } from './components/adminContext';
@@ -30,12 +29,11 @@ function App() {
           <Route element = {<GeneralPrezentation/>} path = "/"/>
           <Route element = {<WrongPage/>} path = "*"/>
           <Route element = {<ResetPassword/>} path = "/resetPassword"/>
-          {user && <Route element = {<PositionsTree/>} path = "/tree"/>}
+          {user && <Route element = {<PositionsTree/>} path = "/positions"/>}
           {user && <Route element = {<Statistics/>} path = "/statistics"/>}
-          {user && <Route element = {<Deadlines/>} path = "/deadlines"/>}
           {user && <Route element = {<Overview/>} path = "/overview"/>}
-          {user && admin && <Route element = {<CrudCompanies/>} path = "/addCompany"/>}
-          {user && admin && <Route element = {<Admin/>} path = "/admin"/>}
+          {user && admin && <Route element = {<CrudCompanies/>} path = "/companies"/>}
+          {user && admin && <Route element = {<Admin/>} path = "/admins"/>}
         </Routes>
     </div>
   );

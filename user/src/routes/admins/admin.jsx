@@ -1,8 +1,8 @@
 import { useState, useContext, useEffect } from "react";
 import "./admin.css";
-import { AuthContext } from "../components/userContext";
+import { AuthContext } from "../../components/userContext";
 import { getDocs, collection, updateDoc, doc, query, where, getDoc } from "firebase/firestore";
-import { db } from "../components/firebase";
+import { db } from "../../components/firebase";
 
 export default function Admin() {
     const [adminEmail, setAdminEmail] = useState("");

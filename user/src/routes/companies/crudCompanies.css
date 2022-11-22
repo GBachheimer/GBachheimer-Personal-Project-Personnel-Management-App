@@ -1,6 +1,5 @@
 .hideShowBtn {
     margin-top: 10px;
-    margin-bottom: 10px;
     font-size: 0.6rem;
 }
 
@@ -23,6 +22,10 @@
 #addCompanyBtn, #editCompanyBtn {
     font-size: 0.6rem;
     margin-top: 10px;
+}
+
+#coTableBody {
+    font-size: 0.6rem;
 }
 
 #addCompanyContainer {
