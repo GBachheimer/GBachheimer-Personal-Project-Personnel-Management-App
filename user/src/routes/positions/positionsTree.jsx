@@ -11,17 +11,18 @@ export default function PositionsTree() {
     const [deadline, setDeadline] = useState("");
     const [message, setMessage] = useState("");
     const [posLink, setPosLink] = useState("");
-    const [showOccupied, setShowOccupied] = useState("");
     const [occupied, setOccupied] = useState("No");
     const [showAddForm, setShowAddForm] = useState(false);
     const [edit, setEdit] = useState(false);
     const [id, setId] = useState();
+    const [coId, setCoId] = useState();
+    let totalOccupiedPositions = 0;
 
     useEffect(() => {
         Axios.get("http://localhost:5000/company/list").then((res) => {
             setData(res.data.rows);
-            console.log(data);
             setCoName(res.data.rows[0].co_name);
+            setCoId(res.data.rows[0].co_id);
         }).catch((error) => {
             console.log(error);
         });
@@ -34,9 +35,14 @@ export default function PositionsTree() {
 
     const getAllPositions = () => {
         setPosition();
-        Axios.get("http://localhost:5000/positions/list/" + coName.replace(/\s/g, "_")).then((res) => {
+        Axios.get("http://localhost:5000/positions/list/" + coId).then((res) => {
             setPositions(res.data.rows);
-            console.log(positions);
+            totalOccupiedPositions = 0;
+            for(let i = 0; i < res.data.rows.length; ++i) {
+                if(res.data.rows[i].pos_occupied === "Yes") {
+                    ++totalOccupiedPositions;
+                }
+            };
         }).catch((error) => {
             setPositions();
             console.log(error);
@@ -56,13 +62,13 @@ export default function PositionsTree() {
             return;
         }
         for(let i = 0; i < data.length && positions; ++i) {
-            if(data[i].co_initial_free_positions < positions.length ) {
+            if(data[i].co_name === coName && positions.length >= data[i].co_initial_free_positions) {
                 document.getElementById("message").style.color = "red";
                 setMessage("Failed! Maximum open positions reached.");
                 return;
             }
         };
-        Axios.post("http://localhost:5000/positions/add/" + coName.replace(/\s/g, "_"), {
+        Axios.post("http://localhost:5000/positions/add/" + coId, {
             position: position,
             description: description,
             deadline: deadline,
@@ -102,7 +108,7 @@ export default function PositionsTree() {
     };
 
     const handleSaveEdit = (event) => {
-        Axios.put("http://localhost:5000/positions/edit/" + coName.replace(/\s/g, "_") + "/" + id, {
+        Axios.put("http://localhost:5000/positions/edit/" + id, {
             position: position,
             description: description,
             deadline: deadline,
@@ -126,7 +132,7 @@ export default function PositionsTree() {
     };
 
     const handleDelete = (event) => {
-        Axios.delete("http://localhost:5000/positions/delete/" + coName.replace(/\s/g, "_") + "/" + event.target.id).then((res) => {
+        Axios.delete("http://localhost:5000/positions/delete/" + event.target.id).then((res) => {
             document.getElementById("message").style.color = "#5dff6a";
             setMessage(res.data);
             getAllPositions();
@@ -144,6 +150,16 @@ export default function PositionsTree() {
         setPosLink("");
         setOccupied("No");
         setMessage("");
+    };
+
+    const handleSelectCompany = (event) => {
+        setCoName(event.target.value);
+        for(let i = 0; i < data.length; ++i) {
+            if(data[i].co_name === event.target.value) {
+                setCoId(data[i].co_id);
+                break;
+            }
+        };
     };
 
     return(
@@ -165,15 +181,15 @@ export default function PositionsTree() {
                     <option value = "No">No</option>
                     <option value = "Yes">Yes</option>
                 </select>}
-                {!edit && <button className = "btn btn-primary addPosBtn" onClick = {handleAddPosition}>Add position to {coName.replace(/_/g, " ")}</button>}
+                {!edit && <button className = "btn btn-primary addPosBtn" onClick = {handleAddPosition}>Add position to {coName}</button>}
                 {edit && <button className = "btn btn-primary addPosBtn" onClick = {handleSaveEdit}>Save</button>}
             </div>}
             {!showAddForm && <div id = "selectCoInput">
                 <label className = "addPositionLabel" htmlFor = "coName">Select a company:</label>
-                {data && <select className = "addPositionInput" name = "coName" type = "text" value = {coName} onChange = {event => setCoName(event.target.value)} required>
+                {data && <select className = "addPositionInput" name = "coName" type = "text" value = {coName} onChange = {handleSelectCompany} required>
                     {data.map((company, key) => {
                         return (
-                            <option key = {key} value = {company.co_name}>{company.co_name.replace(/_/g, " ")}</option>
+                            <option key = {key} value = {company.co_name}>{company.co_name}</option>
                             );
                         })}
                 </select>}
