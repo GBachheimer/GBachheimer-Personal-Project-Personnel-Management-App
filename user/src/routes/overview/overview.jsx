@@ -1,5 +1,5 @@
 import { Wrapper } from "@googlemaps/react-wrapper";
-import GoogleMapsInfo from "../components/googleMaps/googleMaps";
+import GoogleMapsInfo from "./googleMaps/googleMaps";
 import Axios from "axios";
 import { useState, useEffect } from "react";
 
@@ -21,7 +21,9 @@ export default function Overview() {
             {allCoData && <Wrapper apiKey = "AIzaSyDzyEPQ-8ZKu6DMZQ3lyu9T9SL4qqh5c1M" >
                 <GoogleMapsInfo center = {centerEurope} zoom = {zoomEurope} data = {allCoData} />
             </Wrapper>}
-            {!allCoData && <h1 style = {{color: "black"}} className = "position-absolute start-50 top-50 translate-middle">Loading...</h1>}
+            {!allCoData && <div className = "spinner-grow text-warning position-absolute start-50 top-50 translate-middle" role = "status">
+                    <span className = "visually-hidden">Loading...</span>
+            </div>}
         </div>
     );
 }

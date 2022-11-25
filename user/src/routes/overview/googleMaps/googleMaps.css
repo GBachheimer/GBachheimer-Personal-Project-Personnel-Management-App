@@ -1,0 +1,65 @@
+#infoWindowTitle {
+    font-size: 1rem;
+    font-weight: bold;
+    text-decoration: none;
+    color: black;
+}
+
+.infoWindowContainer {
+    max-height: 250px;
+    max-width: 200px;
+    overflow: auto;
+    background-color: white;
+    border: 5px solid white;
+    transition: border 1s;
+}
+
+.infoWindowContainer::-webkit-scrollbar-thumb {
+    background: white;
+  }
+
+.infoWindowContainer:hover {
+    border: 10px solid white;
+}
+
+#infoWindowTitle:hover {
+    color: black;
+}
+
+#infoWindowPosNr {
+    font-size: 0.8rem;
+    color: green;
+    font-weight: bold;
+}
+
+.infoWindowFreePos {
+    font-size: 0.6rem;
+    color: rgb(13, 151, 0);
+    font-weight: bold;
+}
+
+.infoWindowOccupiedPos {
+    font-size: 0.6rem;
+    color: #ff0000;
+    font-weight: bold;
+}
+
+.progress {
+    border: 1px solid black;
+    margin-top: -15px;
+    margin-bottom: 10px;
+}
+
+.fade-in-down {
+    animation: fade-in-down 1s ease;
+  }
+  @keyframes fade-in-down {
+    0% {
+      opacity: 0;
+      transform: translateY(-10%);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }

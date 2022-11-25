@@ -7,7 +7,8 @@ import { db } from "../../components/firebase";
 export default function Admin() {
     const [adminEmail, setAdminEmail] = useState("");
     const [message, setMessage] = useState(""); 
-    const [allAdmins, setAllAdmins] = useState([]); 
+    const [allAdmins, setAllAdmins] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
 
     const {user} = useContext(AuthContext);
 
@@ -60,17 +61,27 @@ export default function Admin() {
     };
 
     const getAllAdmins = async() => {
+        setAllAdmins([]);
+        setAllUsers([]);
         const allAdminsRef = collection(db, "users");
         const q = query(allAdminsRef, where("admin", "==", true));
-        const querySnapshot = await getDocs(q);
-        querySnapshot.forEach((doc) => {
+        const querySnapshotAdmins = await getDocs(q);
+        const querySnapshotUsers = await getDocs(allAdminsRef);
+        querySnapshotAdmins.forEach((doc) => {
             setAllAdmins(current => [...current, doc.id]);
         });
-    }
+        querySnapshotUsers.forEach((doc) => {
+            setAllUsers(current => [...current, doc.id]);
+        });
+    };
 
     useEffect(() => {
         getAllAdmins();
     }, []);
+
+    const handleUserClick = (event) => {
+        setAdminEmail(event.target.value);
+    };
 
     return (
         <div className = "adminContainer position-absolute start-50 top-50 translate-middle">
@@ -82,14 +93,39 @@ export default function Admin() {
                 <button onClick = {deleteAdmin} className = "btn btn-primary adminActions">Revoke Admin Rights</button>
             </div>
             <div>
-                {(allAdmins.length === 0) && <p>Loading</p>}
+                {(allAdmins.length === 0) && <div className = "spinner-grow text-warning" role = "status">
+                    <span className = "visually-hidden">Loading...</span>
+                </div>}
                 {(allAdmins.length > 0) && <table>
-                    <tr>
-                        <th>Admins</th>
-                    </tr>
-                    {allAdmins.map((adminName, id) => {
-                    return <tr key = {id}>{adminName}</tr>
+                    <thead>
+                        <tr>
+                            <th>Admins</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {allAdmins.map((adminName, id) => {
+                            return (<tr key = {id}>
+                                <button className = "tableBtn" value = {adminName} onClick = {handleUserClick}>{adminName}</button>
+                            </tr>)
+                        })}
+                    </tbody>
+                </table>}
+                {(allUsers.length === 0) && <div className = "spinner-grow text-warning" role = "status">
+                    <span className = "visually-hidden">Loading...</span>
+                </div>}
+                {(allUsers.length > 0) && <table>
+                    <thead>
+                        <tr>
+                            <th>All Users</th>
+                        </tr>    
+                    </thead>
+                    <tbody>
+                    {allUsers.map((userName, id) => {
+                        return <tr key = {id}>
+                            <td><button className = "tableBtn" value = {userName} onClick = {handleUserClick}>{userName}</button></td>
+                        </tr>
                     })}
+                    </tbody>
                 </table>}
             </div>
         </div>

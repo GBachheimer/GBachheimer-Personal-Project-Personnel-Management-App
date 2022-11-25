@@ -1,6 +1,7 @@
 import "./crudCompanies.css";
 import { useState, useEffect } from "react";
-import Axios from "axios"
+import Axios from "axios";
+import CompanyCard from "./companyCard";
 
 export default function CrudCompanies() {
     const [data, setData] = useState();
@@ -13,10 +14,13 @@ export default function CrudCompanies() {
     const [totalPositions, setTotalPositions] = useState("");
     const [openPositions, setOpenPositions] = useState("");
     const [previousCoName, setPreviousCoName] = useState("");
+    const [selectCoName, setSelectCoName] = useState();
     const [edit, setEdit] = useState(false);
     const [id, setId] = useState();
     const [state, setState] = useState("");
     const [show, setShow] = useState(false);
+    const ref = useRef();
+    const [companyInfo, setCompanyInfo] = useState();
 
     useEffect(() => {
         getAllCo();
@@ -53,13 +57,20 @@ export default function CrudCompanies() {
     const getAllCo = () => {
         Axios.get("http://localhost:5000/company/list").then((res) => {
             setData(res.data.rows);
+            if(!selectCoName) {
+                setSelectCoName(res.data.rows[0].co_name);
+                setCompanyInfo(res.data.rows[0]);
+            };
+        }).catch((error) => {
+            console.log(error);
         });
     };
 
     const handleDelete = (event) => {
         Axios.delete(`http://localhost:5000/company/delete/${event.target.id}`).then((res) => { 
-            setMessage(res.data);
             document.getElementById("message").style.color = "#5dff6a";
+            setMessage(res.data);
+            setCompanyInfo(data[0]);
             getAllCo();
         }).catch((error) => {
             console.log(error);
@@ -94,10 +105,10 @@ export default function CrudCompanies() {
             return;
         }
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyDzyEPQ-8ZKu6DMZQ3lyu9T9SL4qqh5c1M")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
         .then((response) => {
             Axios.put("http://localhost:5000/company/edit/" + id, { 
-                companyName: companyName.replace(/\s/g, "_"),
+                companyName: companyName,
                 country: country,
                 city: city,
                 address: address,
@@ -109,18 +120,10 @@ export default function CrudCompanies() {
                 state: state,
                 previousCoName: previousCoName
             }).then((res) => {
-                setMessage(res.data);
                 document.getElementById("message").style.color = "#5dff6a";
-                setEdit(false);
-                setAddress("");
-                setCity("");
-                setCompanyName("");
-                setCountry("");
-                setPostalCode("");
-                setTotalPositions("");
-                setOpenPositions("");
-                setState("");
-                setPreviousCoName("");
+                setMessage(res.data);
+                reset();
+                setShow(false);
                 getAllCo();
             }).catch((error) => {
                 console.log(error);
@@ -138,12 +141,12 @@ export default function CrudCompanies() {
             setMessage("Please fill all the required fields!");
             document.getElementById("message").style.color = "red";
             return;
-        }
+        };
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyDzyEPQ-8ZKu6DMZQ3lyu9T9SL4qqh5c1M")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
         .then((response) => {
             Axios.post("http://localhost:5000/company/add", { 
-                companyName: companyName.replace(/\s/g, "_"),
+                companyName: companyName,
                 country: country,
                 city: city,
                 address: address,
@@ -154,8 +157,9 @@ export default function CrudCompanies() {
                 openPositions: openPositions,
                 state: state
             }).then((res) => {
-                setMessage(res.data);
                 document.getElementById("message").style.color = "#5dff6a";
+                setMessage(res.data);
+                setShow(false);
                 getAllCo();
             }).catch((error) => {
                 console.log(error);
@@ -167,9 +171,7 @@ export default function CrudCompanies() {
         });
     };
 
-    const handleShowHide = () => {
-        setShow(!show);
-        setEdit(false);
+    const reset = () => {
         setAddress("");
         setCity("");
         setCompanyName("");
@@ -179,13 +181,31 @@ export default function CrudCompanies() {
         setOpenPositions("");
         setState("");
         setPreviousCoName("");
+        setEdit(false);
+    };
+
+    const handleShowHide = () => {
+        if(!show) {
+            setMessage("");
+        }
+        reset();
+        setShow(!show);
+    };
+
+    const handleSelectChanged = (event) => {
+        setSelectCoName(event.target.value);
+        for(let i = 0; i < data.length; ++i) {
+            if(data[i].co_name === ref.current.value) {
+                setCompanyInfo(data[i]);
+            }
+        }
     };
 
     return (
         <div style = {{width: "100%", textAlign: "center"}}>
-            {!show && <button className = "btn btn-primary hideShowBtn" onClick = {handleShowHide}>Add a new company</button>}
-            {show && <button className = "btn btn-primary hideShowBtn" onClick = {handleShowHide}>Hide form</button>}
-            {show && <div id = "addCompanyContainer" style = {{color: "white"}}>
+            {!show && <button className = "btn btn-light hideShowBtn" onClick = {handleShowHide}>Add a new company</button>}
+            {show && <button className = "btn btn-light hideShowBtn" onClick = {handleShowHide}>Hide form</button>}
+            {show && <div id = "addCompanyContainer" style = {{color: "white"}} className = "grow">
                 <label htmlFor = "companyName" className = "addCoLabel">Company Name*</label>
                 <input id = "co_name" className = "addCoInput" name = "companyName" type = "text" placeholder = "Example LLC" value = {companyName} onChange = {(event) => {setCompanyName(event.target.value)}} required></input>
                 <label htmlFor = "address" className = "addCoLabel">Address*</label>
@@ -253,35 +273,18 @@ export default function CrudCompanies() {
                 <input id = "co_total_positions" className = "addCoInput" name = "totalPositions" type = "text" placeholder = "329" value = {totalPositions} onChange = {(event) => {setTotalPositions(event.target.value)}} required></input>
                 <label htmlFor = "openPositions" className = "addCoLabel">Open Positions*</label>
                 <input id = "co_open_positions" className = "addCoInput" name = "openPositions" type = "text" placeholder = "23" value = {openPositions} onChange = {(event) => {setOpenPositions(event.target.value)}} required></input>
-                {!edit && <button id = "addCompanyBtn" className = "btn btn-primary" onClick = {addCompany}>Add Company</button>}
-                {edit && <button id = "editCompanyBtn" className = "btn btn-primary" onClick = {editCompany}>Save Company Info</button>}
+                {!edit && <button id = "addCompanyBtn" className = "btn btn-light" onClick = {addCompany}>Add Company</button>}
+                {edit && <button id = "editCompanyBtn" className = "btn btn-light" onClick = {editCompany}>Save Company Info</button>}
             </div>}
             <p id = "message">{message}</p>
-            {!show && <div id = "displayAllContainer">
-                {data && <table>
-                    <thead>
-                        <tr>
-                            <th>Company Name</th>
-                            <th>Total positions</th>
-                            <th>Open positions</th>
-                        </tr>
-                    </thead>
-                    <tbody id = "coTableBody">
-                    {data.map((item, key) => {
-                        return(
-                            <tr key = {item.co_id}>
-                                <td>{item.co_name.replace(/_/g, " ")}</td>
-                                <td>{item.co_initial_total_positions}</td>
-                                <td>{item.co_initial_free_positions}</td>
-                                <td><button id = {item.co_id} onClick = {handleEdit} className = "editBtn btnStyle">Edit</button></td>
-                                <td><button id = {item.co_id} onClick = {handleDelete} className = "deleteBtn btnStyle">Delete</button></td>
-                            </tr>
-                        );
-                    })}
-                    </tbody>
-                </table>}
-                {!data && <p style = {{color: "white"}}>Loading...</p>}
-            </div>}
+            {data && !show && <select className = "showCoCard addCoInput selectFieldStyle" name = "coName" type = "text" ref = {ref} value = {selectCoName} onChange = {handleSelectChanged} id = "selectCoName">
+                    {data.map((company, key) => {
+                        return (
+                            <option key = {key} value = {company.co_name}>{company.co_name.replace(/_/g, " ")}</option>
+                            );
+                        })}
+            </select>}
+            {companyInfo && !show && <CompanyCard company = {companyInfo} handleEdit = {handleEdit} handleDelete ={handleDelete}></CompanyCard>}
         </div>
     );
 }
