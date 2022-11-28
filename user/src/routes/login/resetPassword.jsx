@@ -33,7 +33,7 @@ export default function ResetPassword() {
                 <label htmlFor = "email" id = "labelResetPass" className = "labelSignUp">Email:</label>
                 <input type = "email" value = {email} onChange = {handleEmail} placeHolder = "example@gmail.com" required className = "inputSignUp"/>
                 <p id = "infoAlert" className = "messageSignUp">{message}</p>
-                <button className = "btn btn-primary resetPassBtn" onClick = {handleSubmit}>Reset password</button>
+                <button className = "btn btn-dark resetPassBtn" onClick = {handleSubmit}>Reset password</button>
             </form>
         </div>
     );

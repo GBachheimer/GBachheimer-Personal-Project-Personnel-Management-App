@@ -103,10 +103,10 @@ export default function SignUp() {
                 <label htmlFor = "password" className = "labelSignUp">Password:</label>
                 <input type = "password" id = "password" name = "password" onChange = {handlePassword} required className = "inputSignUp"></input>
                 <p id = "infoAlert" className = "messageSignUp">{message}</p>
-                <button className = "btn btn-primary submitButton" onClick = {handleSubmit}>Sign up</button>&nbsp;
+                <button className = "btn btn-dark submitButton" onClick = {handleSubmit}>Sign up</button>&nbsp;
                 <button className = "linkStyle or" disabled> or </button>&nbsp;
                 <img alt = "googleIcon" width = "40" height = "40" src = "https://cdn-icons-png.flaticon.com/512/2991/2991148.png" id = "googleImg" className = "imgStyle"></img>&nbsp;
-                <button className = "btn btn-primary submitButton" onClick = {googleSignUp}>Sign up with Google</button>
+                <button className = "btn btn-dark submitButton" onClick = {googleSignUp}>Sign up with Google</button>
             </form>
             <p id = "infoText" className = "messageSignUp">Already have an account? <Link to = "/login" className = "linkStyle">Login</Link></p>
             <button onClick = {resendVerificationEmail} className = "linkStyle messageSignUp">Resend verification email</button>

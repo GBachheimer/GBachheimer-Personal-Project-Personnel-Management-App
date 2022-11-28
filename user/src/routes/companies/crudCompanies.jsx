@@ -112,7 +112,7 @@ export default function CrudCompanies() {
             return;
         }
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyAHYK2pVUawgmxttE5aOquGNSFebnbWv_w")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=" + process.env.REACT_APP_MY_API_KEY)
         .then((response) => {
             Axios.put("http://localhost:5000/company/edit/" + id, { 
                 companyName: companyName,
@@ -150,7 +150,7 @@ export default function CrudCompanies() {
             return;
         };
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyAHYK2pVUawgmxttE5aOquGNSFebnbWv_w")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=" +   process.env.REACT_APP_MY_API_KEY)
         .then((response) => {
             Axios.post("http://localhost:5000/company/add", { 
                 companyName: companyName,
@@ -306,9 +306,9 @@ export default function CrudCompanies() {
                         })}
             </select>}
             {companyInfo && !show && <CompanyCard key = {Math.random()} animateHide = {animateHide} toggleAnim = {toggleAnim} company = {companyInfo} handleEdit = {handleEdit} handleDelete ={handleDelete}></CompanyCard>}
-            <video id = "background-video" autoPlay muted>
+            {myVideo && <video id = "background-video" autoPlay muted>
                     <source src = {myVideo} type="video/mp4"></source>
-            </video>
+            </video>}
         </div>
     );
 }

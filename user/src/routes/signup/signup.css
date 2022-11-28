@@ -1,6 +1,6 @@
 .labelSignUp {
     display: block;
-    color: white;
+    color: black;
     text-align: left;
     margin-top: 5px;
     margin-left: 5%;
@@ -8,7 +8,8 @@
 }
 
 .inputSignUp {
-    color: black;
+    background-color: black;
+    color: white;
     width: 90%;
     border-radius: 10px;
     border: none;
@@ -22,7 +23,7 @@
 .messageSignUp {
     position: relative;
     z-index: 2;
-    color: white;
+    color: black;
     padding: 5px;
 }
 
@@ -56,12 +57,12 @@
     border: none;
     background-color: transparent;
     text-decoration: none;
-    color: white;
+    color: black;
     text-align: center;
 }
 
 .linkStyle:hover {
-    color: #97b2b2;
+    color: black;
 }
 
 .submitButton {
@@ -116,14 +117,14 @@
 .mainContainer::after {
     content: "";
     position: absolute;
-    background: #380c7a;
+    background: white;
     inset: 3px;
 }
 
 .mainContainerResetPass::after {
     content: "";
     position: absolute;
-    background: #380c7a;
+    background: white;
     inset: 3px;
 }
 
@@ -133,7 +134,7 @@
 }
 
 .or:hover {
-    color: white;
+    color: black;
 }
 
 .resetPassBtn {

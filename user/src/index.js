@@ -7,9 +7,11 @@ import App from './App';
 import { BrowserRouter } from 'react-router-dom';
 import { AdminProvider } from './components/adminContext';
 import { AuthProvider } from './components/userContext';
+import { Wrapper } from "@googlemaps/react-wrapper";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+  <Wrapper apiKey = {process.env.REACT_APP_MY_API_KEY} libraries={["places"]}>
     <AuthProvider>
       <AdminProvider>
         <BrowserRouter>
@@ -17,4 +19,5 @@ root.render(
         </BrowserRouter>
       </AdminProvider>
     </AuthProvider>
+  </Wrapper>
 );

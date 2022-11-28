@@ -2,12 +2,13 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const Pool = require("pg").Pool;
+require("dotenv").config();
 
 const db = new Pool({
-    user: "process.env.POSTGRESUSER",
-    password: "process.env.PASSWORD",
-    host: "process.env.HOST",
-    database: "process.env.DATABASE",
+    user: process.env.REACT_APP_POSTGRES_USER,
+    password: process.env.REACT_APP_POSTGRES_PASSWORD,
+    host: process.env.REACT_APP_HOST,
+    database: process.env.REACT_APP_DATABASE,
 });
 
 app.use(cors());
@@ -113,7 +114,7 @@ app.post("/positions/add/:companyId", (req, res) => {
 
 app.get("/positions/list/:companyId", (req, res) => {
     const co_id = req.params.companyId;
-    const query = "SELECT * FROM positions WHERE company_id = 1$";
+    const query = "SELECT * FROM positions WHERE company_id = $1";
     db.query(query, [co_id], (error, result) => {
         if(error) {
             console.log(error);
