@@ -46,7 +46,7 @@ export default function GoogleMapsInfo(props) {
         let progress = 0;
         let infowindow;
         
-        Axios.get("http://localhost:5000/positions/list/" + data[i].co_name.replace(/\s/g, "_")).then((res) => {
+        Axios.get("http://localhost:5000/positions/list/" + data[i].co_id).then((res) => {
           positions = res.data;
           if(res.data != "Failed!" && stringX === "") {
             for(let j = 0; j < res.data.rows.length; ++j) {
@@ -62,7 +62,7 @@ export default function GoogleMapsInfo(props) {
 
           contentString = 
           `<div class = "infoWindowContainer">
-              <a href = "http://localhost:3000/positions" id = "infoWindowTitle">${title.replace(/_/g, " ")}</a>
+              <a href = "http://localhost:3000/positions" id = "infoWindowTitle">${title}</a>
               <p id = "infoWindowPosNr">Open positions: ${data[i].co_initial_free_positions - occupiedPositions} / ${data[i].co_initial_free_positions}</p>
               <div class='progress'><div class='progress-bar progress-bar-striped bg-success' role='progressbar' aria-label='Success striped example' style='width: ${progress}%' aria-valuenow='25' aria-valuemin='0' aria-valuemax='100'>${progress}%</div></div>
               ${stringX}
@@ -97,7 +97,7 @@ export default function GoogleMapsInfo(props) {
             activeInfoWindow = infowindow;
         });
       };
-    }, [data]);
+    }, [props]);
 
     return <div ref = {ref} id = "map" style = {{ flexGrow: "1", height: "100%" }} className = "fade-in-down"></div>
 }

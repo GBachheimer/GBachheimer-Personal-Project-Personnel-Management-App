@@ -3,6 +3,7 @@ import Axios from "axios";
 import "./positionsTree.css";
 import { useLocation } from "react-router";
 import PositionsCard from "./positionsCard";
+import myVideo from "../companies/best.mp4";
 
 export default function PositionsTree() {
     const [data, setData] = useState();
@@ -27,25 +28,23 @@ export default function PositionsTree() {
         Axios.get("http://localhost:5000/company/list").then((res) => {
             setData(res.data.rows);
             if(location.state) {
-                setCoName(location.state);
+                setCoName(location.state[0]);
+                setCoId(location.state[1]);
             } else {
                 setCoName(res.data.rows[0].co_name);
+                setCoId(res.data.rows[0].co_id);
             };
-            setCoId(res.data.rows[0].co_id);
         }).catch((error) => {
             console.log(error);
         });
     }, []);
 
     useEffect(() => {
-        getAllPositions();
-        setMessage("");
-    }, [coName]);
-
-    useEffect(() => {
-        setAnimate( true );
-        setTimeout( () => { setAnimate( false ) }, 600 );
-    }, [positions, showAddForm]);
+        if (coId) {
+            getAllPositions();
+            setMessage("");
+        }
+    }, [coName, coId]);
 
     const getAllPositions = () => {
         setPosition();
@@ -90,10 +89,10 @@ export default function PositionsTree() {
             link: posLink,
             occupied: occupied
         }).then((res) => {
-            document.getElementById("message").style.color = "#5dff6a";
+            document.getElementById("message").style.color = "#007f0b";
+            determineShowHide();
             setMessage(res.data);
             getAllPositions();
-            setShowAddForm(!showAddForm);
         }).catch((error) => {
             console.log(error);
         });
@@ -102,7 +101,7 @@ export default function PositionsTree() {
     const handleEdit = (event) => {
         setEdit(true);
         setId(event.target.id);
-        setShowAddForm(true);
+        determineShowHide();
         for(let i = 0; i < positions.length; ++i) {
             if(positions[i].pos_id === parseInt(event.target.id)) {
                 setPosition(positions[i].pos_name);
@@ -119,7 +118,7 @@ export default function PositionsTree() {
                     setOccupied(positions[i].pos_occupied);
                 }
             }
-        }
+        };
     };
 
     const handleSaveEdit = (event) => {
@@ -130,10 +129,10 @@ export default function PositionsTree() {
             link: posLink,
             occupied: occupied
         }).then((res) => {
-            document.getElementById("message").style.color = "#5dff6a";
+            document.getElementById("message").style.color = "#007f0b";
             setMessage(res.data);
             getAllPositions();
-            setShowAddForm(false);
+            determineShowHide();
         }).catch((error) => {
             console.log(error);
         });
@@ -141,7 +140,7 @@ export default function PositionsTree() {
 
     const handleDelete = (event) => {
         Axios.delete("http://localhost:5000/positions/delete/" + event.target.id).then((res) => {
-            document.getElementById("message").style.color = "#5dff6a";
+            document.getElementById("message").style.color = "#007f0b";
             setMessage(res.data);
             resetStates();
             getAllPositions();
@@ -151,7 +150,7 @@ export default function PositionsTree() {
     };
 
     const handleShowHide = () => {
-        setShowAddForm(!showAddForm);
+        determineShowHide();
         resetStates();
         setMessage("");
     };
@@ -168,6 +167,21 @@ export default function PositionsTree() {
 
     const handleSelectChange = (event) => {
         setCoName(event.target.value);
+        for (let i = 0; i < data.length; ++i) {
+            if (data[i].co_name === event.target.value) {
+                setCoId(data[i].co_id);
+            }
+        };
+    };
+
+    const determineShowHide = () => {
+        if(!showAddForm) {
+            setTimeout(() => {setShowAddForm(true)}, 200);
+            setAnimate(true);
+        } else {
+            setTimeout(() => {setShowAddForm(!showAddForm)}, 200);
+            setAnimate(false);
+        };
     };
 
     return(
@@ -175,7 +189,7 @@ export default function PositionsTree() {
             {!showAddForm && <button onClick = {handleShowHide} className = "btn btn-light showFormBtn">Add a new position to this Company</button>}
             {showAddForm && <button onClick = {handleShowHide} className = "btn btn-light showFormBtn">Hide form</button>}
             <p id = "message">{message}</p>
-            {showAddForm && <div id = "addPosContainer" className = "grow">
+            {showAddForm && <div id = "addPosContainer" className = {animate ? "grow" : "shrink"}>
                 <label className = "addPositionLabel" htmlFor = "positionName">Open Position Name*:</label>
                 <input className = "addPositionInput" type = "text" value = {position} onChange = {event => setPosition(event.target.value)} required></input>
                 <label className = "addPositionLabel" htmlFor = "link">Link to job description:</label>
@@ -189,15 +203,15 @@ export default function PositionsTree() {
                     <option value = "No">No</option>
                     <option value = "Yes">Yes</option>
                 </select>}
-                {!edit && <button className = "btn btn-light addPosBtn" onClick = {handleAddPosition}>Add position to {coName.replace(/_/g, " ")}</button>}
+                {!edit && <button className = "btn btn-light addPosBtn" onClick = {handleAddPosition}>Add position to {coName}</button>}
                 {edit && <button className = "btn btn-light addPosBtn" onClick = {handleSaveEdit}>Save</button>}
             </div>}
-            {!showAddForm && <div id = "selectCoInput">
+            {!showAddForm && <div id = "selectCoInput" className = {!animate ? "grow" : "shrink"}>
                 <label className = "addPositionLabel" htmlFor = "coName">Select a company:</label>
                 {data && <select className = "addPositionInput" name = "coName" type = "text" value = {coName} onChange = {handleSelectChange}>
                     {data.map((company, key) => {
                         return (
-                            <option key = {key} value = {company.co_name}>{company.co_name.replace(/_/g, " ")}</option>
+                            <option key = {key} value = {company.co_name}>{company.co_name}</option>
                             );
                         })}
                 </select>}
@@ -210,7 +224,7 @@ export default function PositionsTree() {
                 {positions && <div className = "row mx-2">
                     {positions.map((position, id) => {
                         return (
-                            <div key = {position} className={ animate ? "col-sm-4 grow" : "col-sm-4" }>
+                            <div key = {Math.random()} className = {!animate ? "col-sm-4 grow" : "col-sm-4 shrink"}>
                                 <PositionsCard position = {position} handleEdit = {handleEdit} handleDelete = {handleDelete}></PositionsCard>
                             </div>
                         );
@@ -218,6 +232,9 @@ export default function PositionsTree() {
                 </div>
                 }
             </div>}
+            <video id = "background-video" autoPlay muted>
+                    <source src = {myVideo} type="video/mp4"></source>
+            </video>
         </div>
     );
 }

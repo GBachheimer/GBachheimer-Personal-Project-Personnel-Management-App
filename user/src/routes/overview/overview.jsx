@@ -17,8 +17,8 @@ export default function Overview() {
     }, []);
 
     return (
-        <div style = {{ display: "flex", height: "90vh", width: "100%" }}>
-            {allCoData && <Wrapper apiKey = "AIzaSyDzyEPQ-8ZKu6DMZQ3lyu9T9SL4qqh5c1M" >
+        <div style = {{height: "100vh", width: "100%" }}>
+            {allCoData && <Wrapper apiKey = "AIzaSyAHYK2pVUawgmxttE5aOquGNSFebnbWv_w" >
                 <GoogleMapsInfo center = {centerEurope} zoom = {zoomEurope} data = {allCoData} />
             </Wrapper>}
             {!allCoData && <div className = "spinner-grow text-warning position-absolute start-50 top-50 translate-middle" role = "status">

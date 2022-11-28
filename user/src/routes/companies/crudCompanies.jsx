@@ -1,7 +1,8 @@
 import "./crudCompanies.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Axios from "axios";
 import CompanyCard from "./companyCard";
+import myVideo from "./best_down.mp4";
 
 export default function CrudCompanies() {
     const [data, setData] = useState();
@@ -20,7 +21,14 @@ export default function CrudCompanies() {
     const [state, setState] = useState("");
     const [show, setShow] = useState(false);
     const ref = useRef();
+    const vidRef = useRef();
     const [companyInfo, setCompanyInfo] = useState();
+    const [toggleAnim, setToggleAnim] = useState();
+    const [animateHide, setAnimateHide] = useState(true);
+
+    useEffect(() => {
+        setToggleAnim(!toggleAnim);
+    }, [selectCoName]);
 
     useEffect(() => {
         getAllCo();
@@ -68,7 +76,7 @@ export default function CrudCompanies() {
 
     const handleDelete = (event) => {
         Axios.delete(`http://localhost:5000/company/delete/${event.target.id}`).then((res) => { 
-            document.getElementById("message").style.color = "#5dff6a";
+            document.getElementById("message").style.color = "#007f0b";
             setMessage(res.data);
             setCompanyInfo(data[0]);
             getAllCo();
@@ -80,8 +88,7 @@ export default function CrudCompanies() {
     const handleEdit = (event) => {
         setEdit(true);
         setId(event.target.id);
-        setMessage("");
-        setShow(true);
+        determineShowHide();
         for(let i = 0; i < data.length; ++i) {
             if (data[i].co_id === parseInt(event.target.id)) {
                 setPreviousCoName(data[i].co_name);
@@ -105,7 +112,7 @@ export default function CrudCompanies() {
             return;
         }
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyAHYK2pVUawgmxttE5aOquGNSFebnbWv_w")
         .then((response) => {
             Axios.put("http://localhost:5000/company/edit/" + id, { 
                 companyName: companyName,
@@ -120,10 +127,10 @@ export default function CrudCompanies() {
                 state: state,
                 previousCoName: previousCoName
             }).then((res) => {
-                document.getElementById("message").style.color = "#5dff6a";
+                document.getElementById("message").style.color = "#007f0b";
                 setMessage(res.data);
                 reset();
-                setShow(false);
+                determineShowHide();
                 getAllCo();
             }).catch((error) => {
                 console.log(error);
@@ -143,7 +150,7 @@ export default function CrudCompanies() {
             return;
         };
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
-        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=MY_KEY")
+        Axios.get("https://maps.googleapis.com/maps/api/geocode/json?address=" + addressToSearch + "&key=AIzaSyAHYK2pVUawgmxttE5aOquGNSFebnbWv_w")
         .then((response) => {
             Axios.post("http://localhost:5000/company/add", { 
                 companyName: companyName,
@@ -157,7 +164,7 @@ export default function CrudCompanies() {
                 openPositions: openPositions,
                 state: state
             }).then((res) => {
-                document.getElementById("message").style.color = "#5dff6a";
+                document.getElementById("message").style.color = "#007f0b";
                 setMessage(res.data);
                 setShow(false);
                 getAllCo();
@@ -184,12 +191,25 @@ export default function CrudCompanies() {
         setEdit(false);
     };
 
-    const handleShowHide = () => {
+    const determineShowHide = () => {
         if(!show) {
             setMessage("");
-        }
+            setAnimateHide(false);
+            setTimeout(() => {
+                setShow(true);
+            }, 200);
+        } else {
+            setToggleAnim(!toggleAnim);
+            setAnimateHide(true);
+            setTimeout(() => {
+                setShow(false);
+            }, 200);
+        };
+    };
+
+    const handleShowHide = () => {
+        determineShowHide();
         reset();
-        setShow(!show);
     };
 
     const handleSelectChanged = (event) => {
@@ -202,17 +222,17 @@ export default function CrudCompanies() {
     };
 
     return (
-        <div style = {{width: "100%", textAlign: "center"}}>
+        <div style = {{textAlign: "center"}}>
             {!show && <button className = "btn btn-light hideShowBtn" onClick = {handleShowHide}>Add a new company</button>}
             {show && <button className = "btn btn-light hideShowBtn" onClick = {handleShowHide}>Hide form</button>}
-            {show && <div id = "addCompanyContainer" style = {{color: "white"}} className = "grow">
+            {show && <div id = "addCompanyContainer" className = {!animateHide ? "grow" : "shrink"}>
                 <label htmlFor = "companyName" className = "addCoLabel">Company Name*</label>
                 <input id = "co_name" className = "addCoInput" name = "companyName" type = "text" placeholder = "Example LLC" value = {companyName} onChange = {(event) => {setCompanyName(event.target.value)}} required></input>
                 <label htmlFor = "address" className = "addCoLabel">Address*</label>
                 <input className = "addCoInput" name = "address" type = "text" placeholder = "St. Peter 10" value = {address} onChange = {(event) => {setAddress(event.target.value)}} id = "address" required></input>
                 <label htmlFor = "city" className = "addCoLabel">City*</label>
                 <input id = "co_city" className = "addCoInput" name = "city" type = "text" placeholder = "London" value = {city} onChange = {(event) => {setCity(event.target.value)}} required></input>
-                <label htmlFor = "state">State / Province*</label>
+                <label htmlFor = "state" className = "addCoLabel">State / Province*</label>
                 <input id = "co_state" className = "addCoInput" name = "state" type = "text" placeholder = "Ilfov" value = {state} onChange = {(event) => {setState(event.target.value)}} required></input>
                 <label htmlFor = "country" className = "addCoLabel">Country*</label>
                 <select id = "co_country" className = "addCoInput" name = "country" onChange = {(event) => {setCountry(event.target.value)}} value = {country} required>
@@ -277,14 +297,18 @@ export default function CrudCompanies() {
                 {edit && <button id = "editCompanyBtn" className = "btn btn-light" onClick = {editCompany}>Save Company Info</button>}
             </div>}
             <p id = "message">{message}</p>
-            {data && !show && <select className = "showCoCard addCoInput selectFieldStyle" name = "coName" type = "text" ref = {ref} value = {selectCoName} onChange = {handleSelectChanged} id = "selectCoName">
+            {data && !show && <label className = "addCoLabel" htmlFor = "coName">Select a company:</label>}
+            {data && !show && <select className = {!animateHide ? "showCoCard addCoInput selectFieldStyle rotate-out-down-right" : !toggleAnim ? "showCoCard addCoInput selectFieldStyle rotate-in-up-right" : "showCoCard addCoInput selectFieldStyle rotate-in-up-left"} name = "coName" type = "text" ref = {ref} value = {selectCoName} onChange = {handleSelectChanged} id = "selectCoName">
                     {data.map((company, key) => {
                         return (
-                            <option key = {key} value = {company.co_name}>{company.co_name.replace(/_/g, " ")}</option>
+                            <option key = {key} value = {company.co_name}>{company.co_name}</option>
                             );
                         })}
             </select>}
-            {companyInfo && !show && <CompanyCard company = {companyInfo} handleEdit = {handleEdit} handleDelete ={handleDelete}></CompanyCard>}
+            {companyInfo && !show && <CompanyCard key = {Math.random()} animateHide = {animateHide} toggleAnim = {toggleAnim} company = {companyInfo} handleEdit = {handleEdit} handleDelete ={handleDelete}></CompanyCard>}
+            <video id = "background-video" autoPlay muted>
+                    <source src = {myVideo} type="video/mp4"></source>
+            </video>
         </div>
     );
 }

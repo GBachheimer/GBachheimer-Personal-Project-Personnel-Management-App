@@ -3,6 +3,7 @@ import "./admin.css";
 import { AuthContext } from "../../components/userContext";
 import { getDocs, collection, updateDoc, doc, query, where, getDoc } from "firebase/firestore";
 import { db } from "../../components/firebase";
+import myVideo from "../companies/stockfootage0211.mp4";
 
 export default function Admin() {
     const [adminEmail, setAdminEmail] = useState("");
@@ -84,19 +85,19 @@ export default function Admin() {
     };
 
     return (
-        <div className = "adminContainer position-absolute start-50 top-50 translate-middle">
+        <div className = "adminContainer">
             <div className = "formStyle2">
                 <label htmlFor = "adminEmail" className = "adminEmailLabel">Email:</label>
                 <input type = "email" placeholder = "example@gmail.com" name = "adminEmail" onChange = {handleAdminEmail} className = "adminEmail" value = {adminEmail} required></input>
                 <p style = {{marginTop: "10px", color: "white"}}>{message}</p>
-                <button onClick = {addAdmin} className = "btn btn-primary adminActions">Make Admin</button>
-                <button onClick = {deleteAdmin} className = "btn btn-primary adminActions">Revoke Admin Rights</button>
+                <button onClick = {addAdmin} className = "btn btn-light adminActions">Make Admin</button>
+                <button onClick = {deleteAdmin} className = "btn btn-light adminActions">Revoke Admin Rights</button>
             </div>
             <div>
                 {(allAdmins.length === 0) && <div className = "spinner-grow text-warning" role = "status">
                     <span className = "visually-hidden">Loading...</span>
                 </div>}
-                {(allAdmins.length > 0) && <table>
+                {(allAdmins.length > 0) && <table className = "fade-in-left">
                     <thead>
                         <tr>
                             <th>Admins</th>
@@ -105,7 +106,7 @@ export default function Admin() {
                     <tbody>
                         {allAdmins.map((adminName, id) => {
                             return (<tr key = {id}>
-                                <button className = "tableBtn" value = {adminName} onClick = {handleUserClick}>{adminName}</button>
+                                <button className = "userListStyle" value = {adminName} onClick = {handleUserClick}>{adminName}</button>
                             </tr>)
                         })}
                     </tbody>
@@ -113,7 +114,7 @@ export default function Admin() {
                 {(allUsers.length === 0) && <div className = "spinner-grow text-warning" role = "status">
                     <span className = "visually-hidden">Loading...</span>
                 </div>}
-                {(allUsers.length > 0) && <table>
+                {(allUsers.length > 0) && <table className = "fade-in-right">
                     <thead>
                         <tr>
                             <th>All Users</th>
@@ -122,12 +123,15 @@ export default function Admin() {
                     <tbody>
                     {allUsers.map((userName, id) => {
                         return <tr key = {id}>
-                            <td><button className = "tableBtn" value = {userName} onClick = {handleUserClick}>{userName}</button></td>
+                            <td><button className = "userListStyle" value = {userName} onClick = {handleUserClick}>{userName}</button></td>
                         </tr>
                     })}
                     </tbody>
                 </table>}
             </div>
+            <video className = "background-video" autoPlay muted loop>
+                    <source src = {myVideo} type="video/mp4"></source>
+            </video>
         </div>
     );
 }

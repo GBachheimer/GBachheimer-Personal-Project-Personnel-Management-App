@@ -4,10 +4,10 @@ const cors = require("cors");
 const Pool = require("pg").Pool;
 
 const db = new Pool({
-    user: "postgres",
-    password: "Ten0fivepress",
-    host: "localhost",
-    database: "employment_app",
+    user: "process.env.POSTGRESUSER",
+    password: "process.env.PASSWORD",
+    host: "process.env.HOST",
+    database: "process.env.DATABASE",
 });
 
 app.use(cors());
@@ -26,7 +26,7 @@ app.post("/company/add", (req, res) => {
         const Co_Lat = req.body.lat;
         const Co_Lng = req.body.lng;
         const Co_state = req.body.state;
-        const createTableQuery = "CREATE TABLE IF NOT EXISTS public.companies(co_id SERIAL PRIMARY KEY, co_name TEXT NOT NULL, co_country TEXT NOT NULL, co_city TEXT NOT NULL, co_address TEXT NOT NULL, co_postal_code TEXT NOT NULL, co_initial_total_positions TEXT NOT NULL, co_initial_free_positions TEXT NOT NULL, co_lat TEXT, co_lng TEXT, co_state TEXT NOT NULL, co_occupied_positions INTEGER DEFAULT 0)";
+        const createTableQuery = "CREATE TABLE IF NOT EXISTS companies(co_id SERIAL PRIMARY KEY, co_name TEXT NOT NULL, co_country TEXT NOT NULL, co_city TEXT NOT NULL, co_address TEXT NOT NULL, co_postal_code TEXT NOT NULL, co_initial_total_positions TEXT NOT NULL, co_initial_free_positions TEXT NOT NULL, co_lat TEXT, co_lng TEXT, co_state TEXT NOT NULL, co_occupied_positions INTEGER DEFAULT 0)";
         db.query(createTableQuery, (error, result) => {
             if(error) {
                 console.log(error);
@@ -88,7 +88,7 @@ app.put("/company/edit/:id", (req, res) => {
 });
 
 app.post("/positions/add/:companyId", (req, res) => {
-    const co_id = parseInt(req.params.companyId);
+    const co_id = req.params.companyId;
     const position = req.body.position;
     const description = req.body.description;
     const deadline = req.body.deadline;
@@ -112,7 +112,7 @@ app.post("/positions/add/:companyId", (req, res) => {
 });
 
 app.get("/positions/list/:companyId", (req, res) => {
-    const co_id = parseInt(req.params.companyId);
+    const co_id = req.params.companyId;
     const query = "SELECT * FROM positions WHERE company_id = 1$";
     db.query(query, [co_id], (error, result) => {
         if(error) {
@@ -131,7 +131,7 @@ app.put("/positions/edit/:id", (req, res) => {
     const deadline = req.body.deadline;
     const link = req.body.link;
     const occupied = req.body.occupied;
-    const query = "UPDATE posirions SET pos_name = $1, pos_description = $2, pos_deadline = $3, pos_link = $4, pos_occupied = $5 WHERE pos_id = $6";
+    const query = "UPDATE positions SET pos_name = $1, pos_description = $2, pos_deadline = $3, pos_link = $4, pos_occupied = $5 WHERE pos_id = $6";
     db.query(query, [position, description, deadline, link, occupied, pos_id], (error, result) => {
         if(error) {
             console.log(error);
