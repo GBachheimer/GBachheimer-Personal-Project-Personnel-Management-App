@@ -1,7 +1,8 @@
 body {
-    background-color: #e0eeff;
     -ms-overflow-style: none;
     scrollbar-width: none;
+    height: 100%;
+    background: radial-gradient(ellipse at bottom, #ffffff 0%, #ffffff 100%);
 }
 
 ::-webkit-scrollbar {
