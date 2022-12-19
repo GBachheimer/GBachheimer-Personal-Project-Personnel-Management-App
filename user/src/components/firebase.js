@@ -4,13 +4,13 @@ import { GoogleAuthProvider } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyBopIirOdPqruoA6_clXnrsgW0_jk7L154",
-    authDomain: "company-positions-management.firebaseapp.com",
-    projectId: "company-positions-management",
-    storageBucket: "company-positions-management.appspot.com",
-    messagingSenderId: "3574475400",
-    appId: "1:3574475400:web:f3fc6db83b869d40c08d3d",
-    databaseURL: "https://company-positions-management-default-rtdb.europe-west1.firebasedatabase.app/"
+    apiKey: process.env.REACT_APP_FIREBASE_KEY,
+    authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+    projectId: process.env.REACT_APP_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_MESSAGING,
+    appId: process.env.REACT_APP_APP_FIREBASE_KEY,
+    databaseURL: process.env.REACT_APP_DATABASE_URL
 };
 
 export const app = initializeApp(firebaseConfig);

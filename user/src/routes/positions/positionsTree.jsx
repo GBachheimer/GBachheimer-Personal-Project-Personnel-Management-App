@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import Axios from "axios";
-import "./positionsTree.css";
 import { useLocation } from "react-router";
 import PositionsCard from "./positionsCard";
-import myVideo from "../companies/best.mp4";
+import SnackbarTemplate from "../../components/snackbarTemplate";
+import { Grid, Button, Box, LinearProgress, Typography, Autocomplete, TextField, CircularProgress, Collapse, Zoom } from "@mui/material";
+import { TransitionGroup } from 'react-transition-group';
+import AddNewPositionForm from "./addNewPositionForm";
+import AddIcon from '@mui/icons-material/Add';
+import HideSourceIcon from '@mui/icons-material/HideSource';
+import background from "../resources/pickingman_background.png";
 
 export default function PositionsTree() {
     const [data, setData] = useState();
@@ -11,7 +16,7 @@ export default function PositionsTree() {
     const [positions, setPositions] = useState();
     const [position, setPosition] = useState("");
     const [description, setDescription] = useState("");
-    const [deadline, setDeadline] = useState("");
+    const [deadline, setDeadline] = useState(new Date().toLocaleDateString());
     const [message, setMessage] = useState("");
     const [posLink, setPosLink] = useState("");
     const [progress, setProgress] = useState();
@@ -20,9 +25,35 @@ export default function PositionsTree() {
     const [edit, setEdit] = useState(false);
     const [id, setId] = useState();
     const [coId, setCoId] = useState();
-    const [animate, setAnimate] = useState(false);
+    const [animate, setAnimate] = useState(true);
     let totalOccupiedPositions = 0;
     const location = useLocation();
+    const [open, setOpen] = useState();
+    const [severity, setSeverity] = useState("info");
+
+    const handleSnackBar = () => {
+        setOpen(false);
+    };
+
+    const handlePositionName = (event) => {
+        setPosition(event.target.value);
+    };
+
+    const handleLinkToJob = (event) => {
+        setPosLink(event.target.value);
+    };
+
+    const handleDetails = (event) => {
+        setDescription(event.target.value);
+    };
+
+    const handleDeadline = (newValue) => {
+        setDeadline(newValue);
+    };
+
+    const handleOccupied = (event) => {
+        setOccupied(event.target.value);
+    };
 
     useEffect(() => {
         Axios.get("http://localhost:5000/company/list").then((res) => {
@@ -42,14 +73,13 @@ export default function PositionsTree() {
     useEffect(() => {
         if (coId) {
             getAllPositions();
-            setMessage("");
         }
-    }, [coName, coId]);
+    }, [coId]);
 
     const getAllPositions = () => {
-        setPosition();
         Axios.get("http://localhost:5000/positions/list/" + coId).then((res) => {
             setPositions(res.data.rows);
+            setId(res.data.rows[0].pos_id);
             totalOccupiedPositions = 0;
             for(let i = 0; i < res.data.rows.length; ++i) {
                 if(res.data.rows[i].pos_occupied === "Yes") {
@@ -65,20 +95,22 @@ export default function PositionsTree() {
 
     const handleAddPosition = () => {
         if(!position) {
-            document.getElementById("message").style.color = "red";
             setMessage("Please write the name of position!");
+            setSeverity("error");
+            setOpen(true);
             return;
         }
         if(!data) {
-            console.log("no data");
-            document.getElementById("message").style.color = "red";
             setMessage("No data available. Please try again later!");
+            setSeverity("error");
+            setOpen(true);
             return;
         }
         for(let i = 0; i < data.length && positions; ++i) {
             if(data[i].co_name === coName && positions.length >= data[i].co_initial_free_positions) {
-                document.getElementById("message").style.color = "red";
                 setMessage("Failed! Maximum open positions reached.");
+                setSeverity("warning");
+                setOpen(true);
                 return;
             }
         };
@@ -89,9 +121,10 @@ export default function PositionsTree() {
             link: posLink,
             occupied: occupied
         }).then((res) => {
-            document.getElementById("message").style.color = "#007f0b";
             determineShowHide();
             setMessage(res.data);
+            setSeverity("success");
+            setOpen(true);
             getAllPositions();
         }).catch((error) => {
             console.log(error);
@@ -101,6 +134,7 @@ export default function PositionsTree() {
     const handleEdit = (event) => {
         setEdit(true);
         setId(event.target.id);
+        console.log(id);
         determineShowHide();
         for(let i = 0; i < positions.length; ++i) {
             if(positions[i].pos_id === parseInt(event.target.id)) {
@@ -129,8 +163,9 @@ export default function PositionsTree() {
             link: posLink,
             occupied: occupied
         }).then((res) => {
-            document.getElementById("message").style.color = "#007f0b";
             setMessage(res.data);
+            setSeverity("success");
+            setOpen(true);
             getAllPositions();
             determineShowHide();
         }).catch((error) => {
@@ -140,19 +175,14 @@ export default function PositionsTree() {
 
     const handleDelete = (event) => {
         Axios.delete("http://localhost:5000/positions/delete/" + event.target.id).then((res) => {
-            document.getElementById("message").style.color = "#007f0b";
             setMessage(res.data);
+            setSeverity("success");
+            setOpen(true);
             resetStates();
             getAllPositions();
         }).catch((error) => {
             console.log(error);
         });
-    };
-
-    const handleShowHide = () => {
-        determineShowHide();
-        resetStates();
-        setMessage("");
     };
 
     const resetStates = () => {
@@ -162,79 +192,111 @@ export default function PositionsTree() {
         setDeadline("");
         setPosLink("");
         setOccupied("No");
-        setMessage("");
     };
-
-    const handleSelectChange = (event) => {
-        setCoName(event.target.value);
-        for (let i = 0; i < data.length; ++i) {
-            if (data[i].co_name === event.target.value) {
-                setCoId(data[i].co_id);
-            }
-        };
-    };
-
+    
     const determineShowHide = () => {
-        if(!showAddForm) {
-            setTimeout(() => {setShowAddForm(true)}, 200);
-            setAnimate(true);
-        } else {
-            setTimeout(() => {setShowAddForm(!showAddForm)}, 200);
-            setAnimate(false);
-        };
+        setAnimate(!animate);
+        setTimeout(() => {
+            setShowAddForm(!showAddForm);
+        }, 200);
+    };
+    
+    const handleShowHide = () => {
+        determineShowHide();
+        resetStates();
     };
 
     return(
-        <div className = "treeContainer" style = {{color: "white"}}>
-            {!showAddForm && <button onClick = {handleShowHide} className = "btn btn-light showFormBtn">Add a new position to this Company</button>}
-            {showAddForm && <button onClick = {handleShowHide} className = "btn btn-light showFormBtn">Hide form</button>}
-            <p id = "message">{message}</p>
-            {showAddForm && <div id = "addPosContainer" className = {animate ? "grow" : "shrink"}>
-                <label className = "addPositionLabel" htmlFor = "positionName">Open Position Name*:</label>
-                <input className = "addPositionInput" type = "text" value = {position} onChange = {event => setPosition(event.target.value)} required></input>
-                <label className = "addPositionLabel" htmlFor = "link">Link to job description:</label>
-                <input className = "addPositionInput" name = "link" type = "text" value = {posLink} onChange = {event => setPosLink(event.target.value)} required></input>
-                <label className = "addPositionLabel" htmlFor = "description">Other details:</label>
-                <textarea className = "addPositionInput" name = "description" onChange = {event => setDescription(event.target.value)} value = {description}></textarea>
-                <label className = "addPositionLabel" htmlFor = "" >Choose a deadline:</label>
-                <input className = "addPositionInput" type = "date" value = {deadline} onChange = {event => setDeadline(event.target.value)}></input>
-                {edit && <label className = "addPositionLabel" htmlFor = "occupied">Position is now occupied?</label>}
-                {edit && <select className = "addPositionInput" name = "occupied" value = {occupied} onChange = {event => setOccupied(event.target.value)}>
-                    <option value = "No">No</option>
-                    <option value = "Yes">Yes</option>
-                </select>}
-                {!edit && <button className = "btn btn-light addPosBtn" onClick = {handleAddPosition}>Add position to {coName}</button>}
-                {edit && <button className = "btn btn-light addPosBtn" onClick = {handleSaveEdit}>Save</button>}
-            </div>}
-            {!showAddForm && <div id = "selectCoInput" className = {!animate ? "grow" : "shrink"}>
-                <label className = "addPositionLabel" htmlFor = "coName">Select a company:</label>
-                {data && <select className = "addPositionInput" name = "coName" type = "text" value = {coName} onChange = {handleSelectChange}>
-                    {data.map((company, key) => {
-                        return (
-                            <option key = {key} value = {company.co_name}>{company.co_name}</option>
-                            );
-                        })}
-                </select>}
-                {data && <div className = "progress" style = {{width: "50%", marginTop: "10px", marginLeft: "25%"}}>
-                    <div className = "progress-bar progress-bar-striped progressColor" role = "progressbar" aria-label = "Success striped example" style = {{width: `${progress}%`}} aria-valuenow = "25" aria-valuemin = "0" aria-valuemax = "100">{progress}%</div>
-                </div>}
-                {!data && <div className = "spinner-grow text-warning position-absolute start-50 top-50 translate-middle" role = "status">
-                    <span className = "visually-hidden">Loading...</span>
-                </div>}
-                {positions && <div className = "row mx-2">
-                    {positions.map((position, id) => {
-                        return (
-                            <div key = {Math.random()} className = {!animate ? "col-sm-4 grow" : "col-sm-4 shrink"}>
-                                <PositionsCard position = {position} handleEdit = {handleEdit} handleDelete = {handleDelete}></PositionsCard>
-                            </div>
-                        );
-                    })}
-                </div>
-                }
-            </div>}
-            <video id = "background-video" autoPlay muted>
-                    <source src = {myVideo} type="video/mp4"></source>
-            </video>
-        </div>
+        <Grid container sx = {{textAlign: "center"}}>
+            {!showAddForm && <Grid item xs = {12}>
+                <Zoom in = {animate}>
+                    <img src = {background} width = "300px" style = {{marginTop: "2%"}}></img>
+                </Zoom>
+            </Grid>}
+            {!showAddForm && 
+                <Zoom in = {animate} style={{ transitionDelay: animate ? '100ms' : '0ms' }}>
+                    <Grid item xs = {12}>
+                        <Button startIcon = {<AddIcon />} variant = "contained" onClick = {handleShowHide} sx = {{marginTop: "2%"}}>
+                            Add position
+                        </Button>
+                    </Grid>
+                </Zoom>}
+            {!showAddForm && 
+                <Grid item xs = {10} md = {8} sx = {{margin: "auto", marginTop: "2%"}}>
+                    {positions && data && <Box>
+                        <Zoom in = {animate} style={{ transitionDelay: animate ? '200ms' : '0ms' }}>
+                            <Autocomplete
+                                value = {coName}
+                                onChange = {(event, newValue) => {
+                                    setCoName(newValue);
+                                    for(let i = 0; i < data.length; ++i) {
+                                        if(data[i].co_name === newValue) {
+                                            setCoId(data[i].co_id);
+                                        }
+                                    };
+                                }}
+                                id = "controllable-states-demo"
+                                options = {data.map((company) => {
+                                    return company.co_name;
+                                })}
+                                renderInput = {(params) => <TextField {...params} label = "Company"/>}
+                            />
+                        </Zoom>
+                        <Zoom in = {animate} style={{ transitionDelay: animate ? '300ms' : '0ms' }}>
+                            <Box sx = {{ display: 'flex', alignItems: 'center', margin: "auto", marginTop: "2%", marginBottom: "2%"}}>
+                                <Box sx = {{ width: '100%', mr: 1 }}>
+                                    <LinearProgress  variant="determinate" value = {progress}/>
+                                </Box>
+                                <Box sx = {{ minWidth: 35 }}>
+                                    <Typography variant = "body2" color = "text.secondary">
+                                        {`${Math.round(progress)}%`}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Zoom>
+                        {positions && 
+                            <TransitionGroup>
+                                {positions.map((position, id) => {
+                                    return (
+                                        <Collapse key = {id}>
+                                            <PositionsCard animate = {animate} position = {position} handleEdit = {handleEdit} handleDelete = {handleDelete}></PositionsCard>
+                                        </Collapse>
+                                    );
+                                })}
+                            </TransitionGroup>}
+                    </Box>}
+                </Grid>}
+            {showAddForm && 
+                <Grid item xs = {10} md = {8} sx = {{margin: "auto"}}>
+                    <Zoom in = {!animate}>
+                        <Button startIcon = {<HideSourceIcon />} variant = "outlined" onClick = {handleShowHide} sx = {{marginTop: "2%"}}>
+                            Hide form
+                        </Button>
+                    </Zoom>
+                    <AddNewPositionForm 
+                        edit = {edit}
+                        position = {position}
+                        handlePositionName = {handlePositionName}
+                        posLink = {posLink}
+                        handleLinkToJob = {handleLinkToJob}
+                        description = {description}
+                        handleDetails = {handleDetails}
+                        deadline = {deadline}
+                        handleDeadline = {handleDeadline}
+                        occupied = {occupied}
+                        handleOccupied = {handleOccupied}
+                        handleAddPosition = {handleAddPosition}
+                        handleSaveEdit = {handleSaveEdit}
+                        coName = {coName}
+                        animate = {animate}
+                        posId = {id}
+                    />
+                </Grid>}
+            {!data && 
+                <Grid item xs = {12} sx = {{margin: "auto"}}>
+                    <CircularProgress color = "success" />
+                </Grid>}
+            <SnackbarTemplate severity = {severity} handleSnackBar = {handleSnackBar} open = {open} message = {message} />
+        </Grid>
     );
 }

@@ -43,7 +43,6 @@ export default function GoogleMapsInfo(props) {
         let positions;
         let contentString;
         let occupiedPositions = 0;
-        let progress = 0;
         let infowindow;
         
         Axios.get("http://localhost:5000/positions/list/" + data[i].co_id).then((res) => {
@@ -57,14 +56,12 @@ export default function GoogleMapsInfo(props) {
                 ++occupiedPositions;
               }
             };
-            progress = parseInt(100 * occupiedPositions / res.data.rows.length);
           };
 
           contentString = 
           `<div class = "infoWindowContainer">
-              <a href = "http://localhost:3000/positions" id = "infoWindowTitle">${title}</a>
+              <h3>${title}</h3>
               <p id = "infoWindowPosNr">Open positions: ${data[i].co_initial_free_positions - occupiedPositions} / ${data[i].co_initial_free_positions}</p>
-              <div class='progress'><div class='progress-bar progress-bar-striped bg-success' role='progressbar' aria-label='Success striped example' style='width: ${progress}%' aria-valuenow='25' aria-valuemin='0' aria-valuemax='100'>${progress}%</div></div>
               ${stringX}
           </div>`;
 

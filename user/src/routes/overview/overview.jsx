@@ -1,8 +1,9 @@
 import GoogleMapsInfo from "./googleMaps/googleMaps";
 import Axios from "axios";
 import { useState, useEffect } from "react";
+import { CircularProgress } from "@mui/material";
 
-export default function Overview() {
+export default function Overview(props) {
     const [allCoData, setAllCoData] = useState();
     const centerEurope = { lat: 50.0755, lng: 14.4378 };
     const zoomEurope = 4;
@@ -18,9 +19,7 @@ export default function Overview() {
     return (
         <div style = {{height: "100vh", width: "100%" }}>
             {allCoData && <GoogleMapsInfo center = {centerEurope} zoom = {zoomEurope} data = {allCoData} />}
-            {!allCoData && <div className = "spinner-grow text-warning position-absolute start-50 top-50 translate-middle" role = "status">
-                    <span className = "visually-hidden">Loading...</span>
-            </div>}
+            {!allCoData && <CircularProgress />}
         </div>
     );
 }

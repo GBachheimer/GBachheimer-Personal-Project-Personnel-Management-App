@@ -1,0 +1,122 @@
+.prezentationCoantainer {
+    width: 100vw;
+    background-color: black;
+}
+
+.pictureMap {
+    width: 60vw;
+    margin-left: 2vw;
+    margin-top: 1vw;
+    border-radius: 20px;
+    display: inline;
+    margin-bottom: 1vw;
+}
+
+.pictureCompany {
+    width: 50vw;
+    margin-left: 42vw;
+    border-radius: 20px;
+    display: inline;
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+}
+
+.introText {
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+    color: white;
+    display: inline;
+    position: absolute;
+    margin-left: 5vw;
+    width: 30vw;
+    margin-right: 5vw;
+}
+
+
+.prezentationCoantainer p {
+  margin-top: 10%;
+  font-size: 1.5rem;
+}
+
+#lastIntro {
+  margin-top: 0%;
+}
+
+@media only screen and (max-width: 600px) {
+  .prezentationCoantainer p {
+      margin-top: 10%;
+      font-size: 0.5rem;
+  }
+}
+
+.fade-in-left2 {
+    animation: fade-in-left2 6s ease infinite;
+  }
+  @keyframes fade-in-left2 {
+    0% {
+      transform: translateX(0px);
+    }
+
+    50% {
+        transform: translateX(20px);
+    }
+
+    100% {
+      transform: translateX(0px);
+    }
+  }
+
+  @media only screen and (max-width: 600px) {
+    .fade-in-left2 {
+      animation: fade-in-left2 6s ease infinite;
+    }
+    @keyframes fade-in-left2 {
+      0% {
+        transform: translateX(0px);
+      }
+  
+      50% {
+          transform: translateX(10px);
+      }
+  
+      100% {
+        transform: translateX(0px);
+      }
+    }
+  }
+
+  .fade-in-right2 {
+    animation: fade-in-right2 6s ease infinite;
+  }
+  @keyframes fade-in-right2 {
+    0% {
+      transform: translateX(0px);
+    }
+
+    50% {
+        transform: translateX(-20px);
+    }
+
+    100% {
+      transform: translateX(0px);
+    }
+  }
+
+  @media only screen and (max-width: 600px) {
+    .fade-in-right2 {
+      animation: fade-in-right2 6s ease infinite;
+    }
+    @keyframes fade-in-right2 {
+      0% {
+        transform: translateX(0px);
+      }
+  
+      50% {
+          transform: translateX(-10px);
+      }
+  
+      100% {
+        transform: translateX(0px);
+      }
+    }
+  }

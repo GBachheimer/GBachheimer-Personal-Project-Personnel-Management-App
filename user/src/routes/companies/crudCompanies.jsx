@@ -1,8 +1,12 @@
-import "./crudCompanies.css";
-import { useState, useEffect, useRef } from "react";
+
+import { useState, useEffect } from "react";
 import Axios from "axios";
 import CompanyCard from "./companyCard";
-import myVideo from "./best_down.mp4";
+import DomainAddIcon from '@mui/icons-material/DomainAdd';
+import HideSourceIcon from '@mui/icons-material/HideSource';
+import { Button, Grid, Autocomplete, TextField, Grow, Zoom } from "@mui/material";
+import AddCompanyForm from "./addCompanyForm";
+import SnackbarTemplate from "../../components/snackbarTemplate";
 
 export default function CrudCompanies() {
     const [data, setData] = useState();
@@ -15,28 +19,28 @@ export default function CrudCompanies() {
     const [totalPositions, setTotalPositions] = useState("");
     const [openPositions, setOpenPositions] = useState("");
     const [previousCoName, setPreviousCoName] = useState("");
-    const [selectCoName, setSelectCoName] = useState();
     const [edit, setEdit] = useState(false);
     const [id, setId] = useState();
     const [state, setState] = useState("");
     const [show, setShow] = useState(false);
-    const ref = useRef();
-    const vidRef = useRef();
     const [companyInfo, setCompanyInfo] = useState();
-    const [toggleAnim, setToggleAnim] = useState();
-    const [animateHide, setAnimateHide] = useState(true);
-
-    useEffect(() => {
-        setToggleAnim(!toggleAnim);
-    }, [selectCoName]);
+    const [open, setOpen] = useState();
+    const [value, setValue] = useState("");
+    const [inputValue, setInputValue] = useState('');
+    const [growAnim, setGrowAnim] = useState(true);
+    const [severity, setSeverity] = useState("info");
 
     useEffect(() => {
         getAllCo();
-        const addressField = document.getElementById("address");
+    }, [value]);
+
+    useEffect(() => {
+        getAllCo();
+        if (show) {
+        const addressField = document.getElementById("outlined-input-address");
         let autocomplete = new window.google.maps.places.Autocomplete(addressField);
         autocomplete.addListener("place_changed", () => {
             const place = autocomplete.getPlace();
-            console.log(place.address_components);
             let streetNr = "";
             for (let i = 0; i < place.address_components.length; ++i) {
                 if(place.address_components[i].types[0] === "street_number") {
@@ -59,25 +63,80 @@ export default function CrudCompanies() {
                 }
             }
             setAddress(streetNr);
-        });
+        })} else {
+            return;
+        }
     }, [show]);
 
     const getAllCo = () => {
+        setData();
         Axios.get("http://localhost:5000/company/list").then((res) => {
             setData(res.data.rows);
-            if(!selectCoName) {
-                setSelectCoName(res.data.rows[0].co_name);
+            if(!value) {
+                setValue(res.data.rows[0].co_name);
                 setCompanyInfo(res.data.rows[0]);
+            } else {
+                for(let i = 0; i < res.data.rows.length; ++i) {
+                    if(res.data.rows[i].co_name === value) {
+                        setCompanyInfo(res.data.rows[i]);
+                    }
+                }
             };
         }).catch((error) => {
             console.log(error);
         });
     };
 
+    const handleSnackBar = () => {
+        setOpen(false);
+    };
+
+    const handleCompanyName = (event) => {
+        setCompanyName(event.target.value);
+        console.log(companyName);
+    };
+
+    const handleCompanyAddress = (event) => {
+        setAddress(event.target.value);
+        console.log(address);
+    };
+
+    const handleCompanyCity = (event) => {
+        setCity(event.target.value);
+        console.log(city);
+    };
+
+    const handleCompanyState = (event) => {
+        setState(event.target.value);
+        console.log(state);
+    };
+
+    const handleCompanyCountry = (event) => {
+        setCountry(event.target.textContent);
+        console.log(event.target.textContent);
+    };
+
+    const handleCompanyPostalCode = (event) => {
+        setPostalCode(event.target.value);
+        console.log(postalCode);
+    };
+
+    const handleCompanyTotalPositions = (event) => {
+        setTotalPositions(event.target.value);
+        console.log(totalPositions);
+    };
+
+    const handleCompanyOpenPositions = (event) => {
+        setOpenPositions(event.target.value);
+        console.log(openPositions);
+    };
+
     const handleDelete = (event) => {
-        Axios.delete(`http://localhost:5000/company/delete/${event.target.id}`).then((res) => { 
-            document.getElementById("message").style.color = "#007f0b";
+        Axios.delete(`http://localhost:5000/company/delete/${event.target.id}`).then((res) => {
             setMessage(res.data);
+            setSeverity("success");
+            setOpen(true);
+            setValue(data[0].co_name);
             setCompanyInfo(data[0]);
             getAllCo();
         }).catch((error) => {
@@ -106,9 +165,10 @@ export default function CrudCompanies() {
 
     const editCompany = (event) => {
         event.preventDefault();
-        if (!companyName || !country || !city || !address || !totalPositions || !openPositions || !postalCode || !state) {
+        if (companyName === "" || country === "" || city === "" || address === "" || totalPositions === "" || openPositions === "" || postalCode === "" || state === "") {
             setMessage("Please fill all the required fields!");
-            document.getElementById("message").style.color = "red";
+            setSeverity("error");
+            setOpen(true);
             return;
         }
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
@@ -127,26 +187,30 @@ export default function CrudCompanies() {
                 state: state,
                 previousCoName: previousCoName
             }).then((res) => {
-                document.getElementById("message").style.color = "#007f0b";
                 setMessage(res.data);
+                setValue(companyName);
                 reset();
                 determineShowHide();
                 getAllCo();
+                setSeverity("success");
+                setOpen(true);
             }).catch((error) => {
                 console.log(error);
             })})
         .catch((error) => {
             setMessage("Coudn't take coords!");
-            document.getElementById("message").style.color = "red";
+            setSeverity("error");
+            setOpen(true);
             console.log(error);
         });
     };
 
     const addCompany = (event) => {
         event.preventDefault();
-        if (!companyName || !country || !city || !address || !totalPositions || !openPositions || !postalCode || !state) {
+        if (companyName === "" || country === "" || city === "" || address === "" || totalPositions === "" || openPositions === "" || postalCode === "" || state === "") {
             setMessage("Please fill all the required fields!");
-            document.getElementById("message").style.color = "red";
+            setSeverity("error");
+            setOpen(true);
             return;
         };
         const addressToSearch = address.replace(" ", "+") + ",+" + city.replace(" ", "+") + ",+" + state.replace(" ", "+") + ",+" + country.replace(" ", "+");
@@ -164,16 +228,18 @@ export default function CrudCompanies() {
                 openPositions: openPositions,
                 state: state
             }).then((res) => {
-                document.getElementById("message").style.color = "#007f0b";
                 setMessage(res.data);
-                setShow(false);
+                setSeverity("success");
+                setOpen(true);
+                determineShowHide();
                 getAllCo();
             }).catch((error) => {
                 console.log(error);
             })})
         .catch((error) => {
             setMessage("Coudn't take coords!");
-            document.getElementById("message").style.color = "red";
+            setSeverity("error");
+            setOpen(true);
             console.log(error);
         });
     };
@@ -192,19 +258,10 @@ export default function CrudCompanies() {
     };
 
     const determineShowHide = () => {
-        if(!show) {
-            setMessage("");
-            setAnimateHide(false);
-            setTimeout(() => {
-                setShow(true);
-            }, 200);
-        } else {
-            setToggleAnim(!toggleAnim);
-            setAnimateHide(true);
-            setTimeout(() => {
-                setShow(false);
-            }, 200);
-        };
+        setGrowAnim(!growAnim);
+        setTimeout(() => {
+            setShow(!show);
+        }, 100);
     };
 
     const handleShowHide = () => {
@@ -212,103 +269,80 @@ export default function CrudCompanies() {
         reset();
     };
 
-    const handleSelectChanged = (event) => {
-        setSelectCoName(event.target.value);
-        for(let i = 0; i < data.length; ++i) {
-            if(data[i].co_name === ref.current.value) {
-                setCompanyInfo(data[i]);
-            }
-        }
-    };
-
     return (
-        <div style = {{textAlign: "center"}}>
-            {!show && <button className = "btn btn-light hideShowBtn" onClick = {handleShowHide}>Add a new company</button>}
-            {show && <button className = "btn btn-light hideShowBtn" onClick = {handleShowHide}>Hide form</button>}
-            {show && <div id = "addCompanyContainer" className = {!animateHide ? "grow" : "shrink"}>
-                <label htmlFor = "companyName" className = "addCoLabel">Company Name*</label>
-                <input id = "co_name" className = "addCoInput" name = "companyName" type = "text" placeholder = "Example LLC" value = {companyName} onChange = {(event) => {setCompanyName(event.target.value)}} required></input>
-                <label htmlFor = "address" className = "addCoLabel">Address*</label>
-                <input className = "addCoInput" name = "address" type = "text" placeholder = "St. Peter 10" value = {address} onChange = {(event) => {setAddress(event.target.value)}} id = "address" required></input>
-                <label htmlFor = "city" className = "addCoLabel">City*</label>
-                <input id = "co_city" className = "addCoInput" name = "city" type = "text" placeholder = "London" value = {city} onChange = {(event) => {setCity(event.target.value)}} required></input>
-                <label htmlFor = "state" className = "addCoLabel">State / Province*</label>
-                <input id = "co_state" className = "addCoInput" name = "state" type = "text" placeholder = "Ilfov" value = {state} onChange = {(event) => {setState(event.target.value)}} required></input>
-                <label htmlFor = "country" className = "addCoLabel">Country*</label>
-                <select id = "co_country" className = "addCoInput" name = "country" onChange = {(event) => {setCountry(event.target.value)}} value = {country} required>
-                    <option value = ""></option>
-                    <option value = "United Kingdom">United Kingdom</option>
-                    <option value = "Albania">Albania</option>
-                    <option value = "Andorra">Andorra</option>
-                    <option value = "Austria">Austria</option>
-                    <option value = "Belarus">Belarus</option>
-                    <option value = "Belgium">Belgium</option>
-                    <option value = "Bosnia and Herzegovina">Bosnia and Herzegovina</option>
-                    <option value = "Bulgaria">Bulgaria</option>
-                    <option value = "Croatia">Croatia (Hrvatska)</option>
-                    <option value = "Cyprus">Cyprus</option>
-                    <option value = "Czech Republic">Czech Republic</option>
-                    <option value = "France">France</option>
-                    <option value = "Gibraltar">Gibraltar</option>
-                    <option value = "Germany">Germany</option>
-                    <option value = "Greece">Greece</option>
-                    <option value = "Holy See (Vatican City State)">Holy See (Vatican City State)</option>
-                    <option value = "Hungary">Hungary</option>
-                    <option value = "Italy">Italy</option>
-                    <option value = "Liechtenstein">Liechtenstein</option>
-                    <option value = "Luxembourg">Luxembourg</option>
-                    <option value = "Macedonia">Macedonia</option>
-                    <option value = "Malta">Malta</option>
-                    <option value = "Moldova">Moldova</option>
-                    <option value = "Monaco">Monaco</option>
-                    <option value = "Montenegro">Montenegro</option>
-                    <option value = "Netherlands">Netherlands</option>
-                    <option value = "Poland">Poland</option>
-                    <option value = "Poland">Portugal</option>
-                    <option value = "Romania">Romania</option>
-                    <option value = "San Marino">San Marino</option>
-                    <option value = "Serbia">Serbia</option>
-                    <option value = "Slovakia">Slovakia</option>
-                    <option value = "Slovenia">Slovenia</option>
-                    <option value = "Spain">Spain</option>
-                    <option value = "Ukraine">Ukraine</option>
-                    <option value = "Denmark">Denmark</option>
-                    <option value = "Estonia">Estonia</option>
-                    <option value = "Faroe Islands">Faroe Islands</option>
-                    <option value = "Finland">Finland</option>
-                    <option value = "Greenland">Greenland</option>
-                    <option value = "Iceland">Iceland</option>
-                    <option value = "Ireland">Ireland</option>
-                    <option value = "Latvia">Latvia</option>
-                    <option value = "Lithuania">Lithuania</option>
-                    <option value = "Norway">Norway</option>
-                    <option value = "Svalbard and Jan Mayen Islands">Svalbard and Jan Mayen Islands</option>
-                    <option value = "Sweden">Sweden</option>
-                    <option value = "Switzerland">Switzerland</option>
-                    <option value = "Turkey">Turkey</option>
-                </select>
-                <label htmlFor = "postalCode" className = "addCoLabel">Postal Code*</label>
-                <input id = "co_postal_code" className = "addCoInput" name = "postalCode" type = "text" placeholder = "10" value = {postalCode} onChange = {(event) => {setPostalCode(event.target.value)}} required></input>
-                <label htmlFor = "totalPositions" className = "addCoLabel">Total Positions*</label>
-                <input id = "co_total_positions" className = "addCoInput" name = "totalPositions" type = "text" placeholder = "329" value = {totalPositions} onChange = {(event) => {setTotalPositions(event.target.value)}} required></input>
-                <label htmlFor = "openPositions" className = "addCoLabel">Open Positions*</label>
-                <input id = "co_open_positions" className = "addCoInput" name = "openPositions" type = "text" placeholder = "23" value = {openPositions} onChange = {(event) => {setOpenPositions(event.target.value)}} required></input>
-                {!edit && <button id = "addCompanyBtn" className = "btn btn-light" onClick = {addCompany}>Add Company</button>}
-                {edit && <button id = "editCompanyBtn" className = "btn btn-light" onClick = {editCompany}>Save Company Info</button>}
-            </div>}
-            <p id = "message">{message}</p>
-            {data && !show && <label className = "addCoLabel" htmlFor = "coName">Select a company:</label>}
-            {data && !show && <select className = {!animateHide ? "showCoCard addCoInput selectFieldStyle rotate-out-down-right" : !toggleAnim ? "showCoCard addCoInput selectFieldStyle rotate-in-up-right" : "showCoCard addCoInput selectFieldStyle rotate-in-up-left"} name = "coName" type = "text" ref = {ref} value = {selectCoName} onChange = {handleSelectChanged} id = "selectCoName">
-                    {data.map((company, key) => {
-                        return (
-                            <option key = {key} value = {company.co_name}>{company.co_name}</option>
-                            );
-                        })}
-            </select>}
-            {companyInfo && !show && <CompanyCard key = {Math.random()} animateHide = {animateHide} toggleAnim = {toggleAnim} company = {companyInfo} handleEdit = {handleEdit} handleDelete ={handleDelete}></CompanyCard>}
-            {myVideo && <video id = "background-video" autoPlay muted>
-                    <source src = {myVideo} type="video/mp4"></source>
-            </video>}
-        </div>
+        <Grid container sx = {{textAlign: "center"}}>
+            {!show && 
+                <Grow in = {growAnim}>
+                    <Grid item xs = {12}>
+                        <Button variant = "contained" startIcon = {<DomainAddIcon />} onClick = {handleShowHide} sx = {{marginTop: "2%"}}>
+                            Add a new company
+                        </Button>
+                    </Grid>
+                </Grow>}
+            {show && 
+                <Grow in = {!growAnim} style={{ transitionDelay: !growAnim ? '100ms' : '0ms' }}>
+                    <Grid item xs = {12}>
+                        <Button variant = "outlined" startIcon = {<HideSourceIcon />} onClick = {handleShowHide} sx = {{marginTop: "2%"}}>
+                            Hide form
+                        </Button>
+                    </Grid>
+                </Grow>}
+            {show && 
+                <AddCompanyForm
+                    addCompany = {addCompany}
+                    editCompany = {editCompany}
+                    companyName = {companyName}
+                    handleCompanyName = {handleCompanyName}
+                    address = {address}
+                    handleCompanyAddress = {handleCompanyAddress}
+                    city = {city}
+                    handleCompanyCity = {handleCompanyCity}
+                    state = {state}
+                    handleCompanyState = {handleCompanyState}
+                    country = {country}
+                    handleCompanyCountry = {handleCompanyCountry}
+                    postalCode = {postalCode}
+                    handleCompanyPostalCode = {handleCompanyPostalCode}
+                    totalPositions = {totalPositions}
+                    handleCompanyTotalPositions = {handleCompanyTotalPositions}
+                    openPositions = {openPositions}
+                    handleCompanyOpenPositions = {handleCompanyOpenPositions}
+                    edit = {edit}
+                    show = {show}
+                    growAnim = {growAnim}
+                />}
+            {data && !show && 
+                <Zoom in={growAnim} style={{ transitionDelay: growAnim ? '100ms' : '0ms' }}>
+                    <Grid item xs = {10} md = {8} sx = {{margin: "auto", marginTop: "2%"}}>
+                        <Autocomplete
+                            value = {value}
+                            onChange = {(event, newValue) => {
+                                setValue(newValue);
+                                for(let i = 0; i < data.length; ++i) {
+                                    if(data[i].co_name === newValue) {
+                                        setCompanyInfo(data[i]);
+                                    }
+                                };
+                            }}
+                            inputValue = {inputValue}
+                            onInputChange = {(event, newInputValue) => {
+                                setInputValue(newInputValue);
+                            }}
+                            id = "controllable-states-demo"
+                            options = {data.map((company) => {
+                                return company.co_name;
+                            })}
+                            renderInput = {(params) => <TextField {...params} label="Company" />}
+                        />
+                    </Grid>
+                </Zoom>}
+            {companyInfo && !show && 
+                <Zoom in={growAnim} style={{ transitionDelay: growAnim ? '250ms' : '0ms' }}>
+                    <Grid item xs = {10} md = {8} sx = {{margin: "auto"}}>
+                        <CompanyCard company = {companyInfo} handleEdit = {handleEdit} handleDelete ={handleDelete}></CompanyCard>
+                    </Grid>
+                </Zoom>}
+            <SnackbarTemplate severity = {severity} handleSnackBar = {handleSnackBar} open = {open} message = {message} />
+        </Grid>
     );
 }

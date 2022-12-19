@@ -1,34 +1,53 @@
 import { useEffect, useState } from "react";
-import "./positionsTree.css";
+import { Accordion, AccordionDetails, AccordionSummary, Button, Divider, Typography, Slide } from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LaunchIcon from '@mui/icons-material/Launch';
+
 export default function PositionsCard(props) {
-    // const [color, setColor] = useState();
-    const [occupied, setOccupied] = useState();
-    // const colors = ["#FFB6C1", "#E6E6FA", "#D8BFD8", "#E9967A", "	#FFFFE0", "#FFEFD5", "	#EEE8AA", "#9ACD32", "#66CDAA", "#8FBC8F", "#AFEEEE", "#E0FFFF", "#B0C4DE", "#F0FFFF", "#F0FFF0", "#DCDCDC", "#3CB371", "#BC8F8F", "#D8BFD8", "#F0E68C"];
-    useEffect(() => {
-        // setColor(colors[Math.floor(Math.random() * colors.length)]);
-        if(props.position.pos_occupied === "Yes") {
-            setOccupied(["Closed", "list-group-item test occupiedPosition"]);
-        } else {
-            setOccupied(["Open", "list-group-item test openPosition"]);
+    const [expanded, setExpanded] = useState(false);
+
+    const handleChange = (panel) => (event, isExpanded) => {
+        setExpanded(isExpanded ? panel : false);
+    };
+
+    const handleNavigate = (link) => {
+        if (link.slice(0, 8) !== "https://") {
+            link = "https://" + link;
         };
-    }, [props]);
+        window.open(link);
+    };
 
     return (
-        <div className = "card px-2 positionCardStyle">
-            <div className = "card-body">
-                <h5 className = "card-title">{props.position.pos_name}</h5>
-                {props.position.pos_description && <p className = "card-text">{props.position.pos_description}</p>}
-            </div>
-            <ul className = "list-group list-group-flush magnifyInfo linesStyle">
-                {props.position.pos_deadline && <li className = "list-group-item">Deadline: {props.position.pos_deadline}</li>}
-                {props.position.pos_link && <a href = {props.position.pos_link} className = "list-group-item">See position announcement</a>}
-                {occupied && <li className = {occupied[1]}>{occupied[0]}</li>}
-            </ul>
-            <div className = "card-body">
-                <button id = {props.position.pos_id} onClick = {props.handleEdit} className = "btn btn-dark cardBtn">Edit</button>
-                <button id = {props.position.pos_id} onClick = {props.handleDelete} className = "btn btn-dark cardBtn mx-2">Delete</button>
-                {/* <Link className = "btn cardBtn" to = "/overview" state = {props.position.co_name}>See all positions</Link> */}
-            </div>
-        </div>
+        <Slide direction = "up" in = {props.animate} mountOnEnter unmountOnExit timeout = {500}>
+            <Accordion expanded = {expanded === 'panel1'} onChange = {handleChange('panel1')} style = {{backgroundColor: "#3a91da", color: "white", marginTop: "1%"}}>
+                <AccordionSummary
+                    expandIcon = {<ExpandMoreIcon sx = {{color: "white"}}/>}
+                    aria-controls = "panel1bh-content"
+                    id = "panel1bh-header"
+                >
+                    <Typography>
+                        {props.position.pos_name}
+                    </Typography>
+                    {props.position.pos_occupied && <Typography style = {{color: props.position.pos_occupied === "Yes" ? "tomato" : "#A0FFA0", display: "inline", marginLeft: "10%"}}>
+                        Occupied: {props.position.pos_occupied}
+                    </Typography>}
+                </AccordionSummary>
+                <AccordionDetails>
+                    {props.position.pos_description && <Typography sx = {{textAlign: "start", marginLeft: "7%"}}>
+                        Description: {props.position.pos_description}
+                    </Typography>}
+                    {props.position.pos_description && <Divider sx = {{my: 1}} />}
+                    {props.position.pos_deadline && <Typography sx = {{textAlign: "start", marginLeft: "7%"}}>
+                        Deadline: {props.position.pos_deadline.slice(0, 10)}
+                    </Typography>}
+                    {props.position.pos_deadline && <Divider sx = {{mt: 1}} />}
+                    <Button endIcon = {<ModeEditIcon/>} variant = "outlined" id = {props.position.pos_id} onClick = {props.handleEdit} sx = {{minWidth: "30%", m: 1, color: "white"}}>Edit</Button>
+                    <Button endIcon = {<DeleteIcon/>} variant = "outlined" id = {props.position.pos_id} onClick = {props.handleDelete} sx = {{minWidth: "30%", m: 1, color: "white"}}>Delete</Button>
+                    {props.position.pos_link && <Button endIcon = {<LaunchIcon/>} variant = "outlined" onClick = {() => handleNavigate(props.position.pos_link)} sx = {{minWidth: "30%", mx: 1, my: 2, color: "white"}}>Position announcement</Button>}
+                </AccordionDetails>
+            </Accordion>
+        </Slide>
     );
 }

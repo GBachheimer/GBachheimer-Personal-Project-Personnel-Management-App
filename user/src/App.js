@@ -1,7 +1,7 @@
 
 import './App.css';
 import Navbar from './components/navbar/navbar';
-import GeneralPrezentation from './routes/generalPrezentation';
+import GeneralPrezentation from './routes/generalPrezentation/generalPrezentation';
 import { Route, Routes } from 'react-router-dom';
 import Overview from './routes/overview/overview';
 import SignUp from './routes/signup/signup';

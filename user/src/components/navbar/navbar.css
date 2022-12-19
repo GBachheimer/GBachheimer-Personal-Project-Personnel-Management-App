@@ -1,22 +1,17 @@
-.buttonStyleNavbar {
-    font-size: 0.8rem;
-    border: none;
-    background-color: transparent;
-    text-decoration: none;
-    text-align: center;
-    color: #ffffff;
+.navbarItemAnimation:hover {
+    animation: navbarItemAnimation 0.5s ease;
 }
 
-.buttonStyleNavbar:hover {
-    color: rgb(205, 205, 205);
-}
+@keyframes navbarItemAnimation {
+    0% {
+        transform: translateY(0);
+    }
 
-.navbar {
-    max-height: 10vh;
-}
+    50% {
+        transform: translateY(10px);
+    }
 
-.active {
-    color: #ffffff;
-    border-left: 1px solid white;
-    border-right: 1px solid white;
+    100% {
+        transform: translateY(0);
+    }
 }

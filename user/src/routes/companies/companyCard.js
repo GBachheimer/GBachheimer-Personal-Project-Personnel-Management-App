@@ -1,25 +1,51 @@
-import "./crudCompanies.css";
+
 import { Link} from "react-router-dom";
+import { Card, CardHeader, Button, Typography, CardActions, CardContent, Divider } from "@mui/material";
+import ModeEditIcon from '@mui/icons-material/ModeEdit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import WorkIcon from '@mui/icons-material/Work';
+import companyImg from "./industry-1.png"
 
 export default function CompanyCard(props) {
 
     return (
-        <div className = {!props.animateHide ? "card px-3 cardStyle rotate-out-down-left" : props.toggleAnim ? "card px-3 cardStyle rotate-in-up-right" : "card px-3 cardStyle rotate-in-up-left"}>
-            <div className = "card-body">
-                <h5 className = "card-title">{props.company.co_name}</h5>
-                <p className = "card-text">{props.company.co_address}, {props.company.co_city}, {props.company.co_state}, {props.company.co_country}</p>
-            </div>
-            <ul className = "list-group list-group-flush listStyle">
-                <li className = "list-group-item">Total positions: {props.company.co_initial_total_positions}</li>
-                <li className = "list-group-item">Initial open positions: {props.company.co_initial_free_positions}</li>
-                <li className = "list-group-item">Lat: {props.company.co_lat} | Lng: {props.company.co_lng}</li>
-            </ul>
-            <div className = "card-body">
-                <button id = {props.company.co_id} onClick = {props.handleEdit} className = "btn cardBtn btn-dark m-1">Edit</button>
-                <button id = {props.company.co_id} onClick = {props.handleDelete} className = "btn cardBtn btn-dark m-1">Delete</button>
-                <Link className = "btn btn-dark cardBtn m-1" to = "/positions" state = {[props.company.co_name, props.company.co_id]}>Show all positions</Link>
-                <Link className = "btn btn-dark cardBtn m-1" to = "/overview" state = {props.company.co_name}>Show company on map</Link>
-            </div>
-        </div>
+        <Card sx = {{marginTop: "1%", backgroundColor: "#3a91da", color: "white"}}>
+            <CardHeader
+                title =  {
+                    <Typography gutterBottom variant = "h5" component = "h2" sx = {{display: "inline"}}>
+                        {props.company.co_name}
+                    </Typography>}
+                subheader = {
+                    <Typography sx = {{color: "white"}}>
+                        {props.company.co_address + ", " + props.company.co_city + ", " + props.company.co_state + ", " + props.company.co_country}
+                    </Typography>}
+            />
+            <CardContent sx = {{display: "inline"}}>
+                <img alt = "test" src = {companyImg}></img>
+                <Typography variant = "body2" color = "text.secondary" sx = {{textAlign: "left", marginLeft: "10%", color: "white"}}>
+                    Initial total positions: {props.company.co_initial_total_positions}
+                </Typography>
+                <Divider sx = {{width: "80%", margin: "auto", marginTop: "1%", marginBottom: "1%"}} />
+                <Typography variant = "body2" color = "text.secondary" sx = {{textAlign: "left", marginLeft: "10%", color: "white"}}>
+                    Initial open positions: {props.company.co_initial_free_positions}
+                </Typography>
+                <Divider sx = {{width: "80%", margin: "auto", marginTop: "1%", marginBottom: "1%"}}/>
+                <Typography variant = "body2" color = "text.secondary" sx = {{textAlign: "left", marginLeft: "10%", color: "white"}}>
+                    Lat: {props.company.co_lat} | Long: {props.company.co_lng}
+                </Typography>
+                <Divider sx = {{width: "80%", margin: "auto", marginTop: "1%"}}/>
+            </CardContent>
+            <CardActions sx = {{display: {xs: "block", md: "inline"}}}>
+                <Button sx = {{m: 2, color: "white"}} variant = "outlined" startIcon = {<ModeEditIcon />} id = {props.company.co_id} onClick = {props.handleEdit}>Edit</Button>
+                <Button sx = {{m: 2, color: "white"}}  variant = "outlined" startIcon = {<DeleteIcon />} id = {props.company.co_id} onClick = {props.handleDelete}>Delete</Button>
+                <Button sx = {{m: 2, color: "white"}}  variant = "outlined" startIcon = {<WorkIcon />} >
+                    <Link to = "/positions" state = {[props.company.co_name, props.company.co_id]} style = {{textDecoration: "none", color: "white"}}>Positions</Link>
+                </Button>
+                <Button sx = {{m: 2, color: "white"}}  variant = "outlined" startIcon = {<LocationOnIcon />}>
+                    <Link to = "/overview" state = {props.company.co_name} style = {{textDecoration: "none", color: "white"}}>See Location</Link>
+                </Button>
+            </CardActions>
+        </Card>
     );
 }

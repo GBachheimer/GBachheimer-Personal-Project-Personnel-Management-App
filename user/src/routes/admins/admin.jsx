@@ -3,13 +3,25 @@ import "./admin.css";
 import { AuthContext } from "../../components/userContext";
 import { getDocs, collection, updateDoc, doc, query, where, getDoc } from "firebase/firestore";
 import { db } from "../../components/firebase";
-import myVideo from "../companies/stockfootage0211.mp4";
+import { Button, Grid, Slide, TextField } from "@mui/material";
+import SnackbarTemplate from "../../components/snackbarTemplate";
+import ArrowRightIcon from '@mui/icons-material/ArrowRight';
+import ArrowLeftIcon from '@mui/icons-material/ArrowLeft';
+import PaperTable from "./paperTable";
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PersonOffIcon from '@mui/icons-material/PersonOff';
 
 export default function Admin() {
     const [adminEmail, setAdminEmail] = useState("");
     const [message, setMessage] = useState(""); 
     const [allAdmins, setAllAdmins] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
+    const [open, setOpen] = useState();
+    const [severity, setSeverity] = useState("info");
+
+    const handleSnackBar = () => {
+        setOpen(false);
+    }
 
     const {user} = useContext(AuthContext);
 
@@ -19,44 +31,70 @@ export default function Admin() {
 
     const addAdmin = async(event) => {
         event.preventDefault();
+        if (adminEmail === "") {
+            setMessage("Please provide a user email!");
+            setSeverity("error");
+            setOpen(true);
+            return;
+        }
         const newAdminRef = doc(db, "users", adminEmail);
         const docSnap = await getDoc(newAdminRef);
         if (docSnap.exists() && docSnap.data().admin) {
             setMessage(adminEmail + " is already an admin!");
+            setSeverity("warning");
+            setOpen(true);
             return;
         }
         if (!docSnap.exists()) {
             setMessage(adminEmail + " is not a valid user!");
+            setSeverity("error");
+            setOpen(true);
             return;
         }
         await updateDoc(newAdminRef, {
             admin: true
         });
         setMessage(adminEmail + " is an admin now!");
+        setSeverity("success");
+        setOpen(true);
         setAllAdmins([]);
         getAllAdmins();
     };
 
     const deleteAdmin = async(event) => {
         event.preventDefault();
+        if (adminEmail === "") {
+            setMessage("Please provide a user email!");
+            setSeverity("error");
+            setOpen(true);
+            return;
+        }
         if (user.email === adminEmail) {
             setMessage("You cannot revoke your own admin rights!");
+            setSeverity("warning");
+            setOpen(true);
             return;
         }
         const newAdminRef = doc(db, "users", adminEmail);
         const docSnap = await getDoc(newAdminRef);
         if (docSnap.exists() && !docSnap.data().admin) {
             setMessage(adminEmail + " is not an admin!");
+            setSeverity("success");
+            setOpen(true);
             return;
         }
         if (!docSnap.exists()) {
             setMessage(adminEmail + " is not a valid user!");
+            setSeverity("error");
+            setOpen(true);
             return;
         }
         await updateDoc(newAdminRef, {
             admin: false
         });
         setMessage(adminEmail + " admin rights revoked successfully!");
+        setSeverity("success");
+        setOpen(true);
         setAllAdmins([]);
         getAllAdmins();
     };
@@ -85,53 +123,48 @@ export default function Admin() {
     };
 
     return (
-        <div className = "adminContainer">
-            <div className = "formStyle2">
-                <label htmlFor = "adminEmail" className = "adminEmailLabel">Email:</label>
-                <input type = "email" placeholder = "example@gmail.com" name = "adminEmail" onChange = {handleAdminEmail} className = "adminEmail" value = {adminEmail} required></input>
-                <p style = {{marginTop: "10px", color: "white"}}>{message}</p>
-                <button onClick = {addAdmin} className = "btn btn-light adminActions">Make Admin</button>
-                <button onClick = {deleteAdmin} className = "btn btn-light adminActions">Revoke Admin Rights</button>
-            </div>
-            <div>
-                {(allAdmins.length === 0) && <div className = "spinner-grow text-warning" role = "status">
-                    <span className = "visually-hidden">Loading...</span>
-                </div>}
-                {(allAdmins.length > 0) && <table className = "fade-in-left">
-                    <thead>
-                        <tr>
-                            <th>Admins</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {allAdmins.map((adminName, id) => {
-                            return (<tr key = {id}>
-                                <button className = "userListStyle" value = {adminName} onClick = {handleUserClick}>{adminName}</button>
-                            </tr>)
-                        })}
-                    </tbody>
-                </table>}
-                {(allUsers.length === 0) && <div className = "spinner-grow text-warning" role = "status">
-                    <span className = "visually-hidden">Loading...</span>
-                </div>}
-                {(allUsers.length > 0) && <table className = "fade-in-right">
-                    <thead>
-                        <tr>
-                            <th>All Users</th>
-                        </tr>    
-                    </thead>
-                    <tbody>
-                    {allUsers.map((userName, id) => {
-                        return <tr key = {id}>
-                            <td><button className = "userListStyle" value = {userName} onClick = {handleUserClick}>{userName}</button></td>
-                        </tr>
-                    })}
-                    </tbody>
-                </table>}
-            </div>
-            <video className = "background-video" autoPlay muted loop>
-                    <source src = {myVideo} type="video/mp4"></source>
-            </video>
-        </div>
+        <Grid container justifyContent = "center" alignItems = "center" sx = {{marginTop: "10%"}} rowSpacing = {2}>
+            <Slide direction = "down" in = {true} mountOnEnter unmountOnExit>
+                <Grid xs = {10} sx = {{textAlign: "center"}} item>
+                    <TextField 
+                        required
+                        id = "outlined-required"
+                        label = "Email"
+                        onChange = {handleAdminEmail}
+                        sx = {{ width: "100%"}}
+                        value = {adminEmail}
+                    />
+                </Grid>
+            </Slide>
+            <Grid xs = {5} sx = {{display: {xs: "block", md: "none"}}} item>
+                <Button variant = "contained" endIcon = {<AdminPanelSettingsIcon />} onClick = {addAdmin}>
+                    Make admin
+                </Button>
+            </Grid>
+            <Grid xs = {5} sx = {{display: {xs: "block", md: "none"}, textAlign: "end"}} item>
+                <Button variant = "contained" endIcon = {<PersonOffIcon />} onClick = {deleteAdmin}>
+                    Revoke rights
+                </Button>
+            </Grid>
+            {allUsers && <Slide direction = "up" in = {true} mountOnEnter unmountOnExit>
+                <Grid xs = {10} md = {4} item>
+                    <PaperTable allUsers = {allUsers} handleUserClick = {handleUserClick} tableHead = "Users"/>
+                </Grid>
+            </Slide>}
+            <Grid xs = {2} sx = {{display: {xs: "none", md: "block"}, textAlign: "center"}} item>
+                <Button variant = "contained" endIcon = {<ArrowRightIcon />} onClick = {addAdmin} sx = {{margin: "auto", minWidth: "90%"}}>
+                    Make admin
+                </Button>
+                <Button variant = "contained" startIcon = {<ArrowLeftIcon />} onClick = {deleteAdmin} sx = {{margin: "auto", marginTop: "10px"}}>
+                    Revoke rights
+                </Button>
+            </Grid>
+            {allAdmins && <Slide direction = "up" in = {true} mountOnEnter unmountOnExit>
+                <Grid xs = {10} md = {4} item>
+                    <PaperTable allUsers = {allAdmins} handleUserClick = {handleUserClick} tableHead = "Admins"/>
+                </Grid>
+            </Slide>}
+            <SnackbarTemplate severity = {severity} handleSnackBar = {handleSnackBar} open = {open} message = {message} />
+        </Grid>
     );
 }
